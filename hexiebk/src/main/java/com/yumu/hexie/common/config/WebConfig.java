@@ -49,11 +49,6 @@ public class WebConfig extends WebMvcConfigurationSupport {
         return handlerMapping;
     }
 
-    @Override
-    @Bean
-    public HandlerMapping resourceHandlerMapping() {
-        return super.resourceHandlerMapping();
-    }
     protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
     	converters.clear();
     	MappingJackson2HttpMessageConverter c = new MappingJackson2HttpMessageConverter(){

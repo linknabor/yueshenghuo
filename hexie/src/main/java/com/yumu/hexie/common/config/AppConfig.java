@@ -70,6 +70,10 @@ public class AppConfig {
     private String redisHost;
     @Value(value = "${redis.port}")
     private String redisPort;
+    @Value(value = "${redis.password}")
+    private String redisPassword;
+    @Value(value = "${redis.database}")
+    private int redisDatabase;
     
 
     public static void main(String[] args) {
@@ -78,8 +82,8 @@ public class AppConfig {
     @Bean
     public EmbeddedServletContainerFactory EmbeddedServletContainerFactory(){
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-        factory.setPort(80);
-        factory.addAdditionalTomcatConnectors(createSslConnector());
+        factory.setPort(8890);
+//        factory.addAdditionalTomcatConnectors(createSslConnector());
         return factory;
     }
     
@@ -87,23 +91,22 @@ public class AppConfig {
      * https访问
      * @return
      */
-    private Connector createSslConnector() {
-        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-        Http11NioProtocol protocol = (Http11NioProtocol) connector.getProtocolHandler();
-        try {
-            File truststore = new File("F:/keystore/server.jks");
-            connector.setScheme("https");
-            protocol.setSSLEnabled(true);
-            connector.setSecure(true);
-            connector.setPort(8443);
-            protocol.setKeystoreFile(truststore.getAbsolutePath());
-            protocol.setKeystorePass("hongzhitech20130110");
-//            protocol.setKeyAlias("springboot");
-            return connector;
-        } catch (Exception ex) {
-            throw new IllegalStateException("cant access keystore: [" + "keystore" + "]  ", ex);
-        }
-    }
+//    private Connector createSslConnector() {
+//        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+//        Http11NioProtocol protocol = (Http11NioProtocol) connector.getProtocolHandler();
+//        try {
+//            File truststore = new File("F:/keystore/server.jks");
+//            connector.setScheme("https");
+//            protocol.setSSLEnabled(true);
+//            connector.setSecure(true);
+//            connector.setPort(8443);
+//            protocol.setKeystoreFile(truststore.getAbsolutePath());
+//            protocol.setKeystorePass("hongzhitech20130110");
+//            return connector;
+//        } catch (Exception ex) {
+//            throw new IllegalStateException("cant access keystore: [" + "keystore" + "]  ", ex);
+//        }
+//    }
     
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
@@ -154,6 +157,8 @@ public class AppConfig {
         connectionFactory.setHostName(redisHost);
         connectionFactory.setPort(Integer.valueOf(redisPort));
         connectionFactory.setUsePool(true);
+        connectionFactory.setPassword(redisPassword);
+        connectionFactory.setDatabase(redisDatabase);
         return connectionFactory;
     }
 
