@@ -7,17 +7,13 @@ package com.yumu.hexie.service.common.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.inject.Inject;
-
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import com.yumu.hexie.common.util.JacksonJsonUtil;
 import com.yumu.hexie.common.util.StringUtil;
-import com.yumu.hexie.integration.systemconfig.SystemConfigUtil;
 import com.yumu.hexie.integration.wechat.entity.AccessToken;
 import com.yumu.hexie.model.redis.RedisRepository;
 import com.yumu.hexie.model.system.SystemConfig;
@@ -82,15 +78,7 @@ public class SystemConfigServiceImpl implements SystemConfigService {
     }
     
     public SystemConfig getConfigFromCache(String key){
-    	
-    	SystemConfig systemConfig = redisRepository.getSystemConfig(key);
-    	if (systemConfig == null) {
-			log.error("could not find key [" + key +"] in cache " );
-			int ret = SystemConfigUtil.notifyRefreshing(key);
-			log.error("notify refreshing the cache : " + ret);
-    	}
-    	return systemConfig;
-    
+    	return redisRepository.getSystemConfig(key);
     }
     
     public String queryWXAToken() {
