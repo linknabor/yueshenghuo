@@ -1,12 +1,7 @@
 package com.yumu.hexie.common.config;
 
 import java.beans.PropertyVetoException;
-import java.io.File;
-
 import javax.sql.DataSource;
-
-import org.apache.catalina.connector.Connector;
-import org.apache.coyote.http11.Http11NioProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +33,6 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.yumu.hexie.model.localservice.HomeCart;
 import com.yumu.hexie.model.market.Cart;
@@ -82,7 +76,7 @@ public class AppConfig {
     @Bean
     public EmbeddedServletContainerFactory EmbeddedServletContainerFactory(){
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-        factory.setPort(8890);
+        factory.setPort(9990);
 //        factory.addAdditionalTomcatConnectors(createSslConnector());
         return factory;
     }

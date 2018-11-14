@@ -78,7 +78,7 @@ public class AppConfig {
     @Bean
     public EmbeddedServletContainerFactory servletContainer(){
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-        factory.setPort(8891);
+        factory.setPort(9991);
         return factory;
     }
     
