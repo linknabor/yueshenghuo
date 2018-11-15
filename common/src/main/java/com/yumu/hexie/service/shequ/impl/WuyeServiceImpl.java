@@ -26,6 +26,8 @@ import com.yumu.hexie.integration.wuye.vo.PayResult;
 import com.yumu.hexie.integration.wuye.vo.PaymentData;
 import com.yumu.hexie.integration.wuye.vo.PaymentInfo;
 import com.yumu.hexie.integration.wuye.vo.WechatPayInfo;
+import com.yumu.hexie.model.community.RegionInfo;
+import com.yumu.hexie.model.community.RegionInfoRepository;
 import com.yumu.hexie.model.user.User;
 import com.yumu.hexie.model.user.UserRepository;
 import com.yumu.hexie.service.exception.BizValidateException;
@@ -38,6 +40,8 @@ public class WuyeServiceImpl implements WuyeService {
 
 	@Inject
 	private UserRepository userRepository;
+	@Inject
+	private RegionInfoRepository regionInfoRepository;
 	
 	@Override
 	public HouseListVO queryHouse(String userId) {
@@ -125,7 +129,20 @@ public class WuyeServiceImpl implements WuyeService {
 
 	@Override
 	public HexieHouse getHouse(String userId, String stmtId, String house_id) {
-		return WuyeUtil.getHouse(userId, stmtId, house_id).getData();
+		BaseResult<HexieHouse>	r=WuyeUtil.getHouse(userId, stmtId, house_id);
+		if ("03".equals(r.getResult())){
+			throw new BizValidateException("无效的账单编号，无法查询到房屋!");
+		}
+		if ("02".equals(r.getResult())) {
+			throw new BizValidateException("账单编号不存在!");
+		}
+		if (r.getData() != null ) {
+			List<RegionInfo>	list=regionInfoRepository.findAllByRegionType(r.getData().getSect_id());
+			if(list.size()==0){
+				throw new BizValidateException("无法绑定当前小区！");
+			}
+		}
+		return r.getData();
 	}
 
 	@Override
