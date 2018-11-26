@@ -33,8 +33,8 @@ public class RSASignUtil {
 	 */
 	public static final String SIGN_ALGORITHMS = "MD5withRSA";
 	public static final String KEY_ALGORITHMS = "RSA";
-	public static final String PRI_KEY_PATH = "E:/narbo/fufeitong/prikey.txt";
-	public static final String PUB_KEY_PATH = "E:/narbo/fufeitong/pubkey.txt";
+	public static final String PRI_KEY_PATH = "F:/keys/fufeitong/prikey.txt";
+	public static final String PUB_KEY_PATH = "F:/keys/fufeitong/pubkey.txt";
 	
 
 	/**
