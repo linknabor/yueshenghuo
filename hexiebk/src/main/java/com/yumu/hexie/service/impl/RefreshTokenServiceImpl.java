@@ -25,7 +25,7 @@ import com.yumu.hexie.service.common.SystemConfigService;
  * </pre>
  *
  * @author tongqian.ni
- * @version $Id: RefreshTokenServiceImpl.java, v 0.1 2016年5月9日 下午8:03:35  Exp $
+ * @version $Id: RefreshTokenServiceImpl.java, v 0.1 2016骞�5鏈�9鏃� 涓嬪崍8:03:35  Exp $
  */
 @Service("refreshTokenService")
 public class RefreshTokenServiceImpl implements RefreshTokenService {
@@ -46,7 +46,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         SCHEDULE_LOG.error("--------------------refresh token[B]-------------------");
         AccessToken at = WeixinUtil.getAccessToken();
         if (at == null) {
-            SCHEDULE_LOG.error("获取token失败----------------------------------------------！！！！！！！！！！！");
+            SCHEDULE_LOG.error("鑾峰彇token澶辫触----------------------------------------------锛侊紒锛侊紒锛侊紒锛侊紒锛侊紒锛�");
             return;
         }
         sharedSysConfigService.saveAccessToken(at);
@@ -63,7 +63,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         if (StringUtil.isNotEmpty(jsToken)) {
             sharedSysConfigService.saveJsToken(jsToken);
         } else {
-            SCHEDULE_LOG.error("获取ticket失败----------------------------------------------！！！！！！！！！！！");
+            SCHEDULE_LOG.error("鑾峰彇ticket澶辫触----------------------------------------------锛侊紒锛侊紒锛侊紒锛侊紒锛侊紒锛�");
         }
         SCHEDULE_LOG.error("--------------------refresh ticket[E]-------------------");
     }
