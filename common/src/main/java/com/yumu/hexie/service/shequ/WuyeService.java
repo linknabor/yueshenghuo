@@ -7,6 +7,7 @@ import com.yumu.hexie.integration.wuye.resp.BillListVO;
 import com.yumu.hexie.integration.wuye.resp.HouseListVO;
 import com.yumu.hexie.integration.wuye.resp.PayWaterListVO;
 import com.yumu.hexie.integration.wuye.resp.CellListVO;
+import com.yumu.hexie.integration.wuye.vo.Guangming;
 import com.yumu.hexie.integration.wuye.vo.HexieHouse;
 import com.yumu.hexie.integration.wuye.vo.HexieUser;
 import com.yumu.hexie.integration.wuye.vo.PayResult;
@@ -51,4 +52,14 @@ public interface WuyeService {
 	
 	//14.根据数据类型查询指定的物业单元信息
 	public CellListVO querySectList(String sect_id, String build_id, String unit_id, String data_type);
+	
+	// 10.缴费
+	public Guangming getPayInfo(String version,String merId,String tid,String tidSeq,String orderAmt,
+			String orderType,String userId, String norifyUrl) throws ValidationException;
+	// 11.付费通查询订单
+	public Guangming getPayOrderInfo(String version,String merId,String tid,String tidSeq,String orderId) throws ValidationException;;
+	// 12.付费通撤销订单
+	public Guangming getPayRevoke(String version,String merId,String tid,String tidSeq,String orderId,String orderAmt) throws ValidationException;
+	// 13.付费通退款
+	public Guangming getPayRefund(String version,String merId,String tid,String tidSeq,String orderId,String orderAmt,String refundAmt) throws ValidationException;
 }

@@ -70,6 +70,8 @@ public class AppConfig {
     private String redisHost;
     @Value(value = "${redis.port}")
     private String redisPort;
+    @Value(value = "${redis.password}")
+    private String redispassword;
     
 
     public static void main(String[] args) {
@@ -78,8 +80,8 @@ public class AppConfig {
     @Bean
     public EmbeddedServletContainerFactory EmbeddedServletContainerFactory(){
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory();
-        factory.setPort(80);
-        factory.addAdditionalTomcatConnectors(createSslConnector());
+        factory.setPort(86);
+        //factory.addAdditionalTomcatConnectors(createSslConnector());
         return factory;
     }
     
@@ -153,6 +155,7 @@ public class AppConfig {
         JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
         connectionFactory.setHostName(redisHost);
         connectionFactory.setPort(Integer.valueOf(redisPort));
+        connectionFactory.setPassword(redispassword);
         connectionFactory.setUsePool(true);
         return connectionFactory;
     }

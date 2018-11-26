@@ -2,6 +2,7 @@ package com.yumu.hexie.integration.wuye;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -14,11 +15,15 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JavaType;
 import com.yumu.hexie.common.util.JacksonJsonUtil;
 import com.yumu.hexie.common.util.MyHttpClient;
+import com.yumu.hexie.common.util.RSASignUtil;
 import com.yumu.hexie.integration.wuye.resp.BaseResult;
 import com.yumu.hexie.integration.wuye.resp.BillListVO;
 import com.yumu.hexie.integration.wuye.resp.CellListVO;
 import com.yumu.hexie.integration.wuye.resp.HouseListVO;
 import com.yumu.hexie.integration.wuye.resp.PayWaterListVO;
+import com.yumu.hexie.integration.wuye.util.FuFeiTong;
+import com.yumu.hexie.integration.wuye.util.HttpUtil;
+import com.yumu.hexie.integration.wuye.vo.Guangming;
 import com.yumu.hexie.integration.wuye.vo.HexieHouse;
 import com.yumu.hexie.integration.wuye.vo.HexieUser;
 import com.yumu.hexie.integration.wuye.vo.PayResult;
@@ -28,8 +33,14 @@ import com.yumu.hexie.integration.wuye.vo.WechatPayInfo;
 public class WuyeUtil {
 
 	private static String REQUEST_ADDRESS = "http://www.e-shequ.com/mobileInterface/mobile/";
+	private static String REQUEST_ADDRESSGM = "http://barpay.qufuba.net/";
 	private static String SYSTEM_NAME;
 	private static String CSPID;
+	private static String MERCHANTID;
+	private static String TID;
+	private static String NORIFYURL;
+	private static String VERSION;
+	
 	private static Properties props = new Properties();
 	
 	static {
@@ -45,6 +56,10 @@ public class WuyeUtil {
 		REQUEST_ADDRESS = props.getProperty("requestUrl");
 		SYSTEM_NAME = props.getProperty("sysName");
 		CSPID = props.getProperty("cspId");
+		MERCHANTID = props.getProperty("merchantIdFuFeiTong");
+		TID = props.getProperty("tIDFuFeiTong");
+		NORIFYURL = props.getProperty("norifyUrlFuFeiTong");
+		VERSION = props.getProperty("versionFuFeiTong");
 	}
 
 	// 接口地址
@@ -66,6 +81,15 @@ public class WuyeUtil {
 	private static final String SECT_LIST_URL = "querySectByCspIdSDO.do?csp_id=%s";
 	private static final String MNG_LIST_URL = "queryMngByIdSDO.do?sect_id=%s&build_id=%s&unit_id=%s&data_type=%s";
 	private static final String PAY_WATER_URL = "getMngCellByTradeIdSDO.do?user_id=%s&trade_water_id=%s"; // 获取支付记录涉及的房屋
+	
+	private static final String GUANGMING_PAY_URL = "safe/trans/jspay.do"; //付费通支付接口
+	private static final String GUANGMING_PAY_GINSENG = "version=%s&merId=%s&tid=%s&tidSeq=%s&orderAmt=%s&orderType=%s&userId=%s&norifyUrl=%s";//付费通支付参数
+	private static final String ORDER_GUANGMING_URL = "safe/trans/querystatus.do";//付费通查询订单状态接口
+	private static final String ORDER_GUANGMING_GINSENG = "version=%s&merId=%s&tid=%s&tidSeq=%s&orderId=%s";//付费通查询订单状态接口参数 
+	private static final String REVOKE_GUANGMING_URL = "safe/trans/cancel.do";//付费通撤销订单接口
+	private static final String REVOKE_GUANGMING_GINSENG = "version=%s&merId=%s&tid=%s&tidSeq=%s&orderId=%s&orderAmt=%s"; //付费通撤销订单接口参数  refund
+	private static final String REFUND_GUANGMING_URL = "safe/trans/refund.do";//付费通退款订单接口
+	private static final String REFUND_GUANGMING_GINSENG = "version=%s&merId=%s&tid=%s&tidSeq=%s&orderId=%s&orderAmt=%s&refundAmt=%s"; //付费通退款订单接口参数  
 	
 	public static BaseResult<BillListVO> quickPayInfo(String stmtId, String currPage, String totalCount) {
 		String url = REQUEST_ADDRESS + String.format(QUICK_PAY_URL, stmtId, currPage, totalCount);
@@ -178,6 +202,132 @@ public class WuyeUtil {
 		return (BaseResult<String>)httpGet(url, String.class);
 	}
 	
+	// 21.付费通缴费
+	public static BaseResult<Guangming> getPayInfo(String tidSeq,String orderAmt,String orderType,String userId) throws ValidationException {
+
+		String url = REQUEST_ADDRESSGM + GUANGMING_PAY_URL;
+		String sign = "";
+		String json = "";
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("version", VERSION);
+		map.put("merId", MERCHANTID);
+		map.put("orderType", orderType);
+		map.put("tid", TID);
+		map.put("tidSeq", tidSeq);
+		map.put("orderAmt", orderAmt);
+		map.put("userId", userId);
+		map.put("norifyUrl", NORIFYURL);
+		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath(RSASignUtil.PRI_KEY_PATH)));
+		try {
+			json = JacksonJsonUtil.beanToJson(map);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		BaseResult baseResult = httpPost(url,json,Guangming.class);
+		return baseResult;
+	}
+	
+	// 22.付费通订单状态查询
+	public static BaseResult<Guangming> getPayOrderInfo(String tidSeq,String orderId) throws ValidationException {
+			
+		String url = REQUEST_ADDRESSGM + ORDER_GUANGMING_URL;
+		String sign = "";
+		String json = "";
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("version", VERSION);
+		map.put("merId", MERCHANTID);
+		map.put("tid", TID);
+		map.put("tidSeq", tidSeq);
+//		map.put("orderId", orderId);
+		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath(RSASignUtil.PRI_KEY_PATH)));
+		try {
+			json = JacksonJsonUtil.beanToJson(map);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		BaseResult baseResult = httpPost(url,json,Guangming.class);
+
+		return baseResult;
+	}
+
+	// 23.付费通订单撤销
+	public static BaseResult<Guangming> getPayRevoke(String tidSeq,String orderId,String orderAmt) throws ValidationException {
+			
+		String url = REQUEST_ADDRESSGM + REVOKE_GUANGMING_URL;
+		String sign = "";
+		String json = "";
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("version", VERSION);
+		map.put("merId", MERCHANTID);
+		map.put("tid", TID);
+		map.put("tidSeq", tidSeq);
+		map.put("orderId", orderId);
+		map.put("orderAmt", orderAmt);
+		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath(RSASignUtil.PRI_KEY_PATH)));
+		try {
+			json = JacksonJsonUtil.beanToJson(map);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		BaseResult baseResult = httpPost(url,json,Guangming.class);
+
+		return baseResult;
+	}
+	
+	// 24.付费通订单退款
+	public static BaseResult<Guangming> getPayRefund(String tidSeq,String orderId,String orderAmt,String refundAmt) throws ValidationException {
+			
+		String url = REQUEST_ADDRESSGM + REFUND_GUANGMING_URL;
+		String sign = "";
+		String json = "";
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("version", VERSION);
+		map.put("merId", MERCHANTID);
+		map.put("tid", TID);
+		map.put("tidSeq", tidSeq);
+		map.put("orderId", orderId);
+		map.put("orderAmt", orderAmt);
+		map.put("refundAmt", refundAmt);
+		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath(RSASignUtil.PRI_KEY_PATH)));
+		try {
+			json = JacksonJsonUtil.beanToJson(map);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		BaseResult baseResult = httpPost(url,json,Guangming.class);
+
+		return baseResult;
+	}
+	
+	private static <T> BaseResult httpPost(String reqUrl,String content, Class c){
+		
+
+		String response = "";
+		try {
+			Log.info("请求参数数据："+response);
+			response = HttpUtil.doPost(reqUrl,content, "UTF-8");
+			Log.info("请求返回数据："+response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		BaseResult r= new BaseResult();
+		try {
+			r.setData(JacksonJsonUtil.jsonToBean(response,c));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return r;
+	}
+
 	
 	private static BaseResult httpGet(String reqUrl, Class c){
 		HttpGet get = new HttpGet(reqUrl);

@@ -4,19 +4,26 @@
  */
 package com.yumu.hexie.service.payment.impl;
 
+import java.text.DecimalFormat;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.xml.bind.ValidationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.yumu.hexie.integration.wechat.constant.ConstantWeChat;
 import com.yumu.hexie.integration.wechat.entity.common.CloseOrderResp;
 import com.yumu.hexie.integration.wechat.entity.common.JsSign;
 import com.yumu.hexie.integration.wechat.entity.common.PaymentOrderResult;
 import com.yumu.hexie.integration.wechat.entity.common.PrePaymentOrder;
 import com.yumu.hexie.integration.wechat.entity.common.WxRefundOrder;
+import com.yumu.hexie.integration.wechat.util.WeixinUtil;
+import com.yumu.hexie.integration.wuye.WuyeUtil;
+import com.yumu.hexie.integration.wuye.vo.Guangming;
 import com.yumu.hexie.model.localservice.basemodel.BaseO2OService;
 import com.yumu.hexie.model.market.ServiceOrder;
 import com.yumu.hexie.model.payment.PaymentConstant;
@@ -117,14 +124,36 @@ public class PaymentServiceImpl implements PaymentService {
         if(checkPaySuccess(pay.getPaymentNo())){
             throw new BizValidateException(pay.getId(),"订单已支付成功，勿重复提交！").setError();
         }
-        PrePaymentOrder preWechatOrder = wechatCoreService.createOrder(pay);
-        pay.setPrepayId(preWechatOrder.getPrepay_id());
+        
+//		3. 从微信获取签名   此方法注释 因为现在是用付费通支付 从付费通哪里拿到签名 appid 等  wyw 2018-11-13
+//        PrePaymentOrder preWechatOrder = wechatCoreService.createOrder(pay);
+//        log.warn("[Payment-req]Saved["+pay.getPaymentNo()+"]["+pay.getOrderId()+"]["+pay.getOrderType()+"]");
+//        JsSign sign = wechatCoreService.getPrepareSign(preWechatOrder.getPrepay_id());
+        
+		DecimalFormat decimalFormat=new DecimalFormat("0");
+		String price = decimalFormat.format(pay.getPrice()*100);
+		JsSign r = new JsSign();
+        try {
+		Guangming guang = WuyeUtil.getPayInfo(pay.getPaymentNo(),price, "0101", pay.getOpenId()).getData();
+		log.warn("[Payment-req]sign["+guang.getPaySign()+"]");
+		r.setAppId(guang.getAppId());
+		r.setTimestamp(guang.getTimeStamp());
+		r.setNonceStr(guang.getNonceStr());
+		r.setPkgStr(guang.getPackage_str());
+		r.setSignature(guang.getPaySign());
+		
+        pay.setPrepayId(guang.getPackage_str());
         paymentOrderRepository.save(pay);
-        log.warn("[Payment-req]Saved["+pay.getPaymentNo()+"]["+pay.getOrderId()+"]["+pay.getOrderType()+"]");
-        //3. 从微信获取签名
-        JsSign sign = wechatCoreService.getPrepareSign(preWechatOrder.getPrepay_id());
-        log.warn("[Payment-req]sign["+sign.getSignature()+"]");
-        return sign;
+        
+        
+		} catch (ValidationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        
+        
+        return r;
     }
     
     private void validatePayRequest(PaymentOrder pay) {

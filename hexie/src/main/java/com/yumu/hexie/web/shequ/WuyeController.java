@@ -3,6 +3,7 @@ package com.yumu.hexie.web.shequ;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
@@ -29,6 +30,7 @@ import com.yumu.hexie.integration.wuye.resp.CellVO;
 import com.yumu.hexie.integration.wuye.resp.HouseListVO;
 import com.yumu.hexie.integration.wuye.resp.PayWaterListVO;
 import com.yumu.hexie.integration.wuye.resp.CellListVO;
+import com.yumu.hexie.integration.wuye.vo.Guangming;
 import com.yumu.hexie.integration.wuye.vo.HexieHouse;
 import com.yumu.hexie.integration.wuye.vo.HexieUser;
 import com.yumu.hexie.integration.wuye.vo.PayResult;
@@ -502,4 +504,99 @@ public class WuyeController extends BaseController {
 	    return BaseResult.successResult("succeeded");
 		
 	}
+	
+	/**
+	 * 付费通支付
+	 */
+	@RequestMapping(value = "/noticePayFuFeiTong", method = RequestMethod.GET)
+	@ResponseBody
+	public BaseResult<WechatPayInfo> getPayInfo(
+			@RequestParam(required=false) String version,@RequestParam(required=false) String merId,@RequestParam(required=false) String orderAmt,
+			@RequestParam(required=false) String orderType,@RequestParam(required=false) String norifyUrl,@RequestParam(required=false) String tid,@RequestParam(required=false) String tidSeq)
+			throws Exception {
+		Guangming result;
+		Guangming result1;
+		try {
+			UUID uuid = UUID.randomUUID();
+			String uid =uuid.toString().replaceAll("-", "");
+			result = wuyeService.getPayInfo("1.0.0", "888891811535377","G0004655",uid, "100", "0101","oSdak0r_g1vdm1lZOzzrrG2ueNyc", "https://test.e-shequ.com/guangming/wechat/hexie/wechat/JDPushController/fufeitong");
+			result1 = wuyeService.getPayOrderInfo("1.0.0", "888891811535377","G0004655",uid, "");
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			return BaseResult.fail(e.getMessage());
+		}
+	    return BaseResult.successResult(result);
+	}
+	
+	/**
+	 * 付费通订单查询
+	 */
+	@RequestMapping(value = "/getPayOrderInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public BaseResult<WechatPayInfo> getPayOrderInfo(
+			@RequestParam(required=false) String version,@RequestParam(required=false) String merId,@RequestParam(required=false) String orderId,@RequestParam(required=false) String tid,@RequestParam(required=false) String tidSeq)
+			throws Exception {
+		Guangming result;
+		try {
+			result = wuyeService.getPayOrderInfo("1.0.0", "888891811535377","G0004655","aaea111858674624a5c4c19c031af47b", "18111215028258708918");
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			return BaseResult.fail(e.getMessage());
+		}
+	    return BaseResult.successResult(result);
+	}
+	
+	
+	/**
+	 * 付费通撤销
+	 */
+	@RequestMapping(value = "/getPayRevoke", method = RequestMethod.GET)
+	@ResponseBody
+	public BaseResult<WechatPayInfo> getPayRevoke(
+			@RequestParam(required=false) String version,@RequestParam(required=false) String merId,@RequestParam(required=false) String orderAmt,
+			@RequestParam(required=false) String orderId,@RequestParam(required=false) String tid,@RequestParam(required=false) String tidSeq)
+			throws Exception {
+		Guangming result;
+		try {
+			result = wuyeService.getPayRevoke("1.0.0", "888891811535377","G0004655","aaea111858674624a5c4c19c031af47b", "18111215028258708918","1");
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			return BaseResult.fail(e.getMessage());
+		}
+	    return BaseResult.successResult(result);
+	}
+	
+	/**
+	 * 付费通退款
+	 * @param version
+	 * @param merId
+	 * @param orderAmt
+	 * @param orderId
+	 * @param refundAmt
+	 * @param tid
+	 * @param tidSeq
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getPayRefund", method = RequestMethod.GET)
+	@ResponseBody
+	public BaseResult<WechatPayInfo> getPayRefund(
+			@RequestParam(required=false) String version,@RequestParam(required=false) String merId,@RequestParam(required=false) String orderAmt,
+			@RequestParam(required=false) String orderId,@RequestParam(required=false) String refundAmt,@RequestParam(required=false) String tid,@RequestParam(required=false) String tidSeq)
+			throws Exception {
+		Guangming result;
+		try {
+			result = wuyeService.getPayRefund("1.0.0", "888891811535377","G0004655","aaea111858674624a5c4c19c031af47b", "18111215028258708918", "1","1");
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			return BaseResult.fail(e.getMessage());
+		}
+	    return BaseResult.successResult(result);
+	}
+	
+	
 }
