@@ -236,29 +236,6 @@ public class WuyeServiceImpl implements WuyeService {
 		return WuyeUtil.getMngList(sect_id, build_id, unit_id, data_type).getData();
 	}
 	
-	@Override
-	public Guangming getPayInfo(String version, String merId,String tid,String tidSeq, String orderAmt, String orderType,String userId, String norifyUrl)
-			throws ValidationException {
-		// TODO Auto-generated method stub
-		return WuyeUtil.getPayInfo(tidSeq, orderAmt, orderType,userId).getData();
-	}
 
-	@Override
-	public Guangming getPayOrderInfo(String version, String merId,String tid,String tidSeq, String orderId) throws ValidationException {
-		// TODO Auto-generated method stub
-		return WuyeUtil.getPayOrderInfo(tidSeq, orderId).getData();
-	}
-
-	@Override
-	public Guangming getPayRevoke(String version, String merId,String tid,String tidSeq, String orderId, String orderAmt) throws ValidationException{
-		// TODO Auto-generated method stub
-		return WuyeUtil.getPayRevoke(tidSeq, orderId, orderAmt).getData();
-	}
-
-	@Override
-	public Guangming getPayRefund(String version, String merId,String tid,String tidSeq, String orderId, String orderAmt, String refundAmt) throws ValidationException {
-		// TODO Auto-generated method stub
-		return WuyeUtil.getPayRefund(tidSeq, orderId, orderAmt, refundAmt).getData();
-	}
 
 }
