@@ -184,24 +184,29 @@ public class PaymentServiceImpl implements PaymentService {
         if(payment.getStatus() != PaymentConstant.PAYMENT_STATUS_INIT){
             return payment;
         }
-        PaymentOrderResult poResult = wechatCoreService.queryOrder(payment.getPaymentNo());
-        
-        if(poResult.isPaying()) {//1. 支付中
-            log.warn("[Payment-refreshStatus]isPaying["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
-            return payment;
-        } else if(poResult.isPayFail()) {//2. 失败
-            log.warn("[Payment-refreshStatus]isPayFail["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
-            payment.fail();
-        } else if(poResult.isClose()) {//3. 关闭
-            log.warn("[Payment-refreshStatus]isClose["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
-            payment.cancel();
-        } else if(poResult.isRefunding()) {//4. 退款中
-            log.warn("[Payment-refreshStatus]isRefunding["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
-            payment.refunding();
-        } else if (poResult.isPaySuccess()) {//5. 成功
-            log.warn("[Payment-refreshStatus]isPaySuccess["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
-            payment.paySuccess(poResult.getTransaction_id());
-        }
+//        PaymentOrderResult poResult = wechatCoreService.queryOrder(payment.getPaymentNo());
+        try {
+			Guangming guang = WuyeUtil.getPayOrderInfo(payment.getPaymentNo()).getData();
+	        if(guang.isPaying()) {//1. 支付中
+	            log.warn("[Payment-refreshStatus]isPaying["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
+	            return payment;
+	        } else if(guang.isPayFail()) {//2. 失败
+	            log.warn("[Payment-refreshStatus]isPayFail["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
+	            payment.fail();
+	        } else if(guang.isPayInvalid()) {//3. 失效
+	            log.warn("[Payment-refreshStatus]isPayInvalid["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
+	            payment.invalid();
+	        } else if(guang.isPayUnpaid()) {//4. 未支付
+	            log.warn("[Payment-refreshStatus]isPayUnpaid["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
+	            payment.unpaid();
+	        } else if (guang.isPaySuccess()) {//5. 成功
+	            log.warn("[Payment-refreshStatus]isPaySuccess["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
+	            payment.paySuccess(guang.getOrderId());
+	        }
+        } catch (ValidationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         return paymentOrderRepository.save(payment);
     }
 

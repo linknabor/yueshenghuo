@@ -21,13 +21,15 @@ public class PaymentConstant {
     public static final int TYPE_XIYI_ORDER = 2;
     public static final int TYPE_BAOJIE_ORDER = 3;
     
-    //1. 已提交 2. 支付成功 3. 支付失败 4.支付取消
+    //1. 已提交 2. 支付成功 3. 支付失败 4.支付取消  7.失效   8.未支付
     public static final int PAYMENT_STATUS_INIT = 1;
     public static final int PAYMENT_STATUS_SUCCESS = 2;
     public static final int PAYMENT_STATUS_FAIL = 3;
     public static final int PAYMENT_STATUS_CANCEL = 4;
     public static final int PAYMENT_STATUS_REFUNDED = 5;
     public static final int PAYMENT_STATUS_REFUNDING = 6;
+    public static final int PAYMENT_STATUS_INVALID = 7;
+    public static final int PAYMENT_STATUS_UNPAID = 8;
     
     
 
