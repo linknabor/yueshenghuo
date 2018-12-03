@@ -29,6 +29,7 @@ import com.yumu.hexie.integration.wuye.vo.HexieUser;
 import com.yumu.hexie.integration.wuye.vo.PayResult;
 import com.yumu.hexie.integration.wuye.vo.PaymentInfo;
 import com.yumu.hexie.integration.wuye.vo.WechatPayInfo;
+import com.yumu.hexie.service.exception.BizValidateException;
 
 public class WuyeUtil {
 
@@ -206,7 +207,6 @@ public class WuyeUtil {
 	public static BaseResult<Guangming> getPayInfo(String tidSeq,String orderAmt,String orderType,String userId) throws ValidationException {
 
 		String url = REQUEST_ADDRESSGM + GUANGMING_PAY_URL;
-		String sign = "";
 		String json = "";
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("version", VERSION);
@@ -226,21 +226,24 @@ public class WuyeUtil {
 		}
 		
 		BaseResult baseResult = httpPost(url,json,Guangming.class);
+		Guangming gm = (Guangming)baseResult.getData();
+		if(!"00".equals(gm.getResCode())) {
+			Log.error("错误提示："+gm.getResMsg());
+			throw new BizValidateException("错误提示："+gm.getResMsg());
+		}
 		return baseResult;
 	}
 	
 	// 22.付费通订单状态查询
-	public static BaseResult<Guangming> getPayOrderInfo(String tidSeq,String orderId) throws ValidationException {
+	public static BaseResult<Guangming> getPayOrderInfo(String tidSeq) throws ValidationException {
 			
 		String url = REQUEST_ADDRESSGM + ORDER_GUANGMING_URL;
-		String sign = "";
 		String json = "";
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("version", VERSION);
 		map.put("merId", MERCHANTID);
 		map.put("tid", TID);
 		map.put("tidSeq", tidSeq);
-//		map.put("orderId", orderId);
 		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath(RSASignUtil.PRI_KEY_PATH)));
 		try {
 			json = JacksonJsonUtil.beanToJson(map);
@@ -251,7 +254,11 @@ public class WuyeUtil {
 
 		
 		BaseResult baseResult = httpPost(url,json,Guangming.class);
-
+		Guangming gm = (Guangming)baseResult.getData();
+		if(!"00".equals(gm.getResCode())) {
+			Log.error("错误提示："+gm.getResMsg());
+			throw new BizValidateException("错误提示："+gm.getResMsg());
+		}
 		return baseResult;
 	}
 
@@ -259,7 +266,6 @@ public class WuyeUtil {
 	public static BaseResult<Guangming> getPayRevoke(String tidSeq,String orderId,String orderAmt) throws ValidationException {
 			
 		String url = REQUEST_ADDRESSGM + REVOKE_GUANGMING_URL;
-		String sign = "";
 		String json = "";
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("version", VERSION);
@@ -284,7 +290,6 @@ public class WuyeUtil {
 	public static BaseResult<Guangming> getPayRefund(String tidSeq,String orderId,String orderAmt,String refundAmt) throws ValidationException {
 			
 		String url = REQUEST_ADDRESSGM + REFUND_GUANGMING_URL;
-		String sign = "";
 		String json = "";
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("version", VERSION);
@@ -314,6 +319,9 @@ public class WuyeUtil {
 		try {
 			Log.info("请求参数数据："+response);
 			response = HttpUtil.doPost(reqUrl,content, "UTF-8");
+			if("".equals(response)||response==null) {
+				throw new BizValidateException("请求出错，请联系管理员。");
+			}
 			Log.info("请求返回数据："+response);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -2,6 +2,8 @@ package com.yumu.hexie.integration.wuye.vo;
 
 import java.io.Serializable;
 
+import javax.persistence.Transient;
+
 public class Guangming implements Serializable {
 
 	/**
@@ -10,27 +12,50 @@ public class Guangming implements Serializable {
 	private static final long serialVersionUID = 692089849115966222L;
 	
 	
-	private String merId;//�̻���
-	private String tid;//�ն˺�
-	private String tidSeq;//�ն���ˮ��
-	private String orderId;//������
-	private String orderAmt;//�������
-	private String orderTime;//����ʱ��
-	private String thirdOrderId;//΢��/֧����������
-	private String resCode;//00��ʾ�ɹ�  ������ʾʧ��
-	private String orderStatus;//֧��״̬   7777: ʧЧ	8888:δ֧��        9999:֧��ʧ��          6666:֧����         0000��֧���ɹ� 
+	private String merId;//商户号
+	private String tid;//终端号
+	private String tidSeq;//终端流水号
+	private String orderId;//订单号
+	private String orderAmt;//订单金额
+	private String orderTime;//交易时间
+	private String thirdOrderId;//微信/支付宝订单号
+	private String resCode;//00表示成功  其他表示失败
+	private String orderStatus;//支付状态   7777: 失效	  8888:未支付        9999:支付失败          6666:支付中         0000：支付成功 
 	private String sign;
-	private String orderType;//֧������     0101 ΢��   0201 ֧����
+	private String orderType;//支付类型     0101 微信   0201 支付宝
 	private String appId;
-	private String resMsg;//��ʾ
+	private String resMsg;//提示
 	private String timeStamp;
 	private String nonceStr;
 	private String package_str;
 	private String paySign;
 	private String signType;
-	private String refundStatus;//�˿� ״̬
+	private String refundStatus;//退款 状态
 	
+	@Transient
+	public boolean isPaySuccess() {
+		return "0000".equals(orderStatus);
+	}
 	
+	@Transient
+	public boolean isPaying() {
+		return "6666".equals(orderStatus);
+	}
+	
+	@Transient
+	public boolean isPayFail() {
+		return "9999".equals(orderStatus);
+	}
+	
+	@Transient
+	public boolean isPayInvalid() {
+		return "7777".equals(orderStatus);
+	}
+	
+	@Transient
+	public boolean isPayUnpaid() {
+		return "8888".equals(orderStatus);
+	}
 	
 	public String getRefundStatus() {
 		return refundStatus;

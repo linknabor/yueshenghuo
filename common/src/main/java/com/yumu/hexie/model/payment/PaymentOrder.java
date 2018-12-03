@@ -114,10 +114,22 @@ public class PaymentOrder  extends BaseModel {
         setStatus(PaymentConstant.PAYMENT_STATUS_REFUNDING);
         setRefundApplyDate(new Date());
     }
+    
     @Transient
     public void refunding(){
         setStatus(PaymentConstant.PAYMENT_STATUS_REFUNDING);
     }
+    
+    @Transient
+    public void invalid(){
+        setStatus(PaymentConstant.PAYMENT_STATUS_INVALID);
+    }
+    
+    @Transient
+    public void unpaid(){
+        setStatus(PaymentConstant.PAYMENT_STATUS_UNPAID);
+    }
+    
     @Transient
     public void fail(){
         setStatus(PaymentConstant.PAYMENT_STATUS_FAIL);
