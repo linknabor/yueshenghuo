@@ -51,7 +51,6 @@ import com.yumu.hexie.vo.SingleItemOrder;
 public class BaseOrderServiceImpl extends BaseOrderProcessor implements BaseOrderService {
 
     protected static final Logger log = LoggerFactory.getLogger(BaseOrderServiceImpl.class);
-	public static String COUPON_URL = ConfigUtil.get("couponUrl");
 	@Inject
 	protected ServiceOrderRepository serviceOrderRepository;
 	@Inject
