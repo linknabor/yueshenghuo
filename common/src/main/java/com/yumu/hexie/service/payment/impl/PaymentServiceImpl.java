@@ -222,23 +222,29 @@ public class PaymentServiceImpl implements PaymentService {
                 ||po.getStatus() == PaymentConstant.PAYMENT_STATUS_REFUNDED) {
             throw new BizValidateException(po.getOrderId(),"该订单已支付成功，无法取消！").setError();
         }
-        CloseOrderResp c = wechatCoreService.closeOrder(po);
-		if (c==null) {
-			throw new BizValidateException(po.getOrderId(), "网络异常，无法查询支付状态！").setError();
+//        CloseOrderResp c = wechatCoreService.closeOrder(po);
+        try {
+			Guangming guang = WuyeUtil.getPayOrderInfo(po.getPaymentNo()).getData();
+			if (guang==null) {
+				throw new BizValidateException(po.getOrderId(), "网络异常，无法查询支付状态！").setError();
+			}
+	        if(guang.isPaying()){
+	            throw new BizValidateException(po.getOrderId(),"该订单支付中，无法取消！").setError();
+	        } else if(guang.isPaySuccess()) {
+	            po.setStatus(PaymentConstant.PAYMENT_STATUS_SUCCESS);
+	            po.setUpdateDate(System.currentTimeMillis());
+	            paymentOrderRepository.save(po);
+	
+	            //FIXME 是否事务会回滚，需要注意
+	            throw new BizValidateException(po.getOrderId(),"该订单已支付成功，无法取消！").setError();
+	        }
+	        po.setStatus(PaymentConstant.PAYMENT_STATUS_CANCEL);
+	        po.setUpdateDate(System.currentTimeMillis());
+	        log.warn("[Payment-cancelPayment]end["+orderType+"]["+orderId+"]");
+        } catch (ValidationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-        if(!c.isCloseSuccess()){
-            throw new BizValidateException(po.getOrderId(),"该订单支付中，无法取消！").setError();
-        } else if(c.isOrderPayed()) {
-            po.setStatus(PaymentConstant.PAYMENT_STATUS_SUCCESS);
-            po.setUpdateDate(System.currentTimeMillis());
-            paymentOrderRepository.save(po);
-
-            //FIXME 是否事务会回滚，需要注意
-            throw new BizValidateException(po.getOrderId(),"该订单已支付成功，无法取消！").setError();
-        }
-        po.setStatus(PaymentConstant.PAYMENT_STATUS_CANCEL);
-        po.setUpdateDate(System.currentTimeMillis());
-        log.warn("[Payment-cancelPayment]end["+orderType+"]["+orderId+"]");
         return paymentOrderRepository.save(po);
     }
 
