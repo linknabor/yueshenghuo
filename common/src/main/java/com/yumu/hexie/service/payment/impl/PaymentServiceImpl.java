@@ -134,7 +134,7 @@ public class PaymentServiceImpl implements PaymentService {
 		String price = decimalFormat.format(pay.getPrice()*100);
 		JsSign r = new JsSign();
         try {
-		Guangming guang = WuyeUtil.getPayInfo(pay.getPaymentNo(),price, "0101", pay.getOpenId()).getData();
+		Guangming guang = WuyeUtil.getPayInfo(pay.getPaymentNo(),price, "0101", pay.getOpenId()).getData();//发起支付
 		log.warn("[Payment-req]sign["+guang.getPaySign()+"]");
 		r.setAppId(guang.getAppId());
 		r.setTimestamp(guang.getTimeStamp());

@@ -2,6 +2,8 @@ package com.yumu.hexie.common.util;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.Key;
@@ -11,6 +13,7 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Properties;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -33,9 +36,25 @@ public class RSASignUtil {
 	 */
 	public static final String SIGN_ALGORITHMS = "MD5withRSA";
 	public static final String KEY_ALGORITHMS = "RSA";
-	public static final String PRI_KEY_PATH = "F:/keys/fufeitong/prikey.txt";
-	public static final String PUB_KEY_PATH = "F:/keys/fufeitong/pubkey.txt";
+	public static String PRI_KEY_PATH;
+	public static String PUB_KEY_PATH;
 	
+	
+private static Properties props = new Properties();
+	
+	static {
+		try {
+			props.load(Thread.currentThread().getContextClassLoader()
+					.getResourceAsStream("wechat.properties"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		PRI_KEY_PATH = props.getProperty("priKeyPath");
+		PUB_KEY_PATH = props.getProperty("pubKeyPath");
+	}
 
 	/**
 	 * RSA签名
@@ -46,7 +65,7 @@ public class RSASignUtil {
 	 */
 	public static String signByKeyPath(String content, String keyPath){
 		
-		String key = getKeyStrByPath(keyPath);
+		String key = getKeyStrByPath();
 		return sign(content, key);
 		
 	}
@@ -60,7 +79,7 @@ public class RSASignUtil {
 	 */
 	public static String signByKeyPath(String content, String keyPath, String charset){
 		
-		String key = getKeyStrByPath(keyPath);
+		String key = getKeyStrByPath();
 		return sign(content, key, charset);
 		
 	}
@@ -124,14 +143,14 @@ public class RSASignUtil {
      */
     public static boolean doCheckByKeyPath(String content, String sign, String publicKeyPath){
     	
-    	String key = getKeyStrByPath(publicKeyPath);
+    	String key = getKeyStrByPath();
     	return doCheck(content, sign, key);
     
     }
     
     public static boolean doCheckByKeyPath(String content, String sign, String publicKeyPath, String charset){
     	
-    	String key = getKeyStrByPath(publicKeyPath);
+    	String key = getKeyStrByPath();
     	return doCheck(content, sign, key, charset);
     
     }
@@ -188,12 +207,12 @@ public class RSASignUtil {
 	 * @param keyAlgorithm	密钥算法
 	 * @return
 	 */
-    public static String getKeyStrByPath(String publicKeyPath){  
+    public static String getKeyStrByPath(){  
     	
         InputStream inputStream = null;
         StringBuffer sb = new StringBuffer();  
         try {  
-            inputStream = new FileInputStream(publicKeyPath);  
+            inputStream = new FileInputStream(PRI_KEY_PATH);  
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));  
             String readLine = null;  
             while ((readLine = br.readLine()) != null) {  
@@ -277,7 +296,7 @@ public class RSASignUtil {
     
  	public static String signByKeyDes(String content, String keyPath, String charset){
  		
- 		String key = getKeyStrByPath(keyPath);
+ 		String key = getKeyStrByPath();
  		byte[] by = null;
 		try {
 			by = threeEncrypt(content.getBytes(),key.getBytes());

@@ -120,13 +120,17 @@ public class BaojieController extends BaseController{
         return new BaseResult<String>().success("通知完成");
     }
     
+    /**
+     * 付费通回调
+     */
     @RequestMapping(value="baojie/fufeitongCallback",method = RequestMethod.POST)
     @ResponseBody
     public String fufeitongCallback(@RequestParam(required=false) String merId,@RequestParam(required=false) String tid,@RequestParam(required=false) String orderId,
     		@RequestParam(required=false) String tidSeq,@RequestParam(required=false) String orderStatus,@RequestParam(required=false) String orderAmt,
     		@RequestParam(required=false)String orderType,@RequestParam(required=false) String orderTime,@RequestParam(required=false) String thirdOrderId,
     		@RequestParam(required=false)String sign) {
-    	Log.info("merId:"+merId+"tid:"+tid+"orderId:"+orderId+"tidSeq:"+tidSeq+"orderStatus:"+orderStatus+"orderAmt:"+orderAmt+"orderType:"+orderType+"orderTime:"+orderTime+"thirdOrderId:"+thirdOrderId+"sign"+sign);
+    	Log.info("merId:"+merId+"  tid:"+tid+"  orderId:"+orderId+"  tidSeq:"+tidSeq+"  orderStatus:"+orderStatus+"  orderAmt:"+orderAmt+
+    			"  orderType:"+orderType+"  orderTime:"+orderTime+"  thirdOrderId:"+thirdOrderId+"  sign"+sign);
     	return "SUCCESS";
     }
     

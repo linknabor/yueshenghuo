@@ -217,7 +217,7 @@ public class WuyeUtil {
 		map.put("orderAmt", orderAmt);
 		map.put("userId", userId);
 		map.put("norifyUrl", NORIFYURL);
-		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath(RSASignUtil.PRI_KEY_PATH)));
+		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath()));
 		try {
 			json = JacksonJsonUtil.beanToJson(map);
 		} catch (JSONException e) {
@@ -244,7 +244,7 @@ public class WuyeUtil {
 		map.put("merId", MERCHANTID);
 		map.put("tid", TID);
 		map.put("tidSeq", tidSeq);
-		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath(RSASignUtil.PRI_KEY_PATH)));
+		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath()));
 		try {
 			json = JacksonJsonUtil.beanToJson(map);
 		} catch (JSONException e) {
@@ -274,7 +274,7 @@ public class WuyeUtil {
 		map.put("tidSeq", tidSeq);
 		map.put("orderId", orderId);
 		map.put("orderAmt", orderAmt);
-		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath(RSASignUtil.PRI_KEY_PATH)));
+		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath()));
 		try {
 			json = JacksonJsonUtil.beanToJson(map);
 		} catch (JSONException e) {
@@ -299,7 +299,7 @@ public class WuyeUtil {
 		map.put("orderId", orderId);
 		map.put("orderAmt", orderAmt);
 		map.put("refundAmt", refundAmt);
-		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath(RSASignUtil.PRI_KEY_PATH)));
+		map.put("sign", FuFeiTong.getReqSign(map, RSASignUtil.getKeyStrByPath()));
 		try {
 			json = JacksonJsonUtil.beanToJson(map);
 		} catch (JSONException e) {
