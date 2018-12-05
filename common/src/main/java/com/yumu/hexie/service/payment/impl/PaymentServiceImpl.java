@@ -143,7 +143,8 @@ public class PaymentServiceImpl implements PaymentService {
 		r.setNonceStr(guang.getNonceStr());
 		r.setPkgStr(guang.getPackage_str());
 		r.setSignature(guang.getPaySign());
-
+		r.setSignType(guang.getSignType());
+		
 		pay.setPrepayId(guang.getPackage_str());
         paymentOrderRepository.save(pay);
         
