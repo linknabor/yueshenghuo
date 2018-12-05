@@ -46,7 +46,18 @@ public class PaymentOrder  extends BaseModel {
     private Date cancelDate;
     private Date refundApplyDate;
     private Date refundDate;
+    
+    private String payNoIs;// 0 代表第一次   1 代表多次  此列不存在数据库
 
+    
+    @Transient
+	public String getPayNoIs() {
+		return payNoIs;
+	}
+	public void setPayNoIs(String payNoIs) {
+		this.payNoIs = payNoIs;
+	}
+	
 	public void refreshOrder() {
 		paymentNo = OrderNoUtil.generatePaymentOrderNo();
 	}
