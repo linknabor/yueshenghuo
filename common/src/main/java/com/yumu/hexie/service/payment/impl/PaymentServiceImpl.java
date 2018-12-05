@@ -155,6 +155,7 @@ public class PaymentServiceImpl implements PaymentService {
         return r;
     }
     
+    
     private void validatePayRequest(PaymentOrder pay) {
         log.error("validatePayRequest:paymentNo:" +pay.getPaymentNo());
         if(PaymentConstant.PAYMENT_STATUS_SUCCESS==pay.getStatus()
@@ -194,6 +195,10 @@ public class PaymentServiceImpl implements PaymentService {
 //        PaymentOrderResult poResult = wechatCoreService.queryOrder(payment.getPaymentNo());
         try {
 			Guangming guang = WuyeUtil.getPayOrderInfo(payment.getPaymentNo()).getData();
+			if(!"00".equals(guang.getResCode())) {
+				log.error("错误提示："+guang.getResMsg());
+				throw new BizValidateException("错误提示："+guang.getResMsg());
+			}
 	        if(guang.isPaying()) {//1. 支付中
 	            log.warn("[Payment-refreshStatus]isPaying["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
 	            return payment;
@@ -232,8 +237,13 @@ public class PaymentServiceImpl implements PaymentService {
 //        CloseOrderResp c = wechatCoreService.closeOrder(po);
         try {
 			Guangming guang = WuyeUtil.getPayOrderInfo(po.getPaymentNo()).getData();
+
 			if (guang==null) {
 				throw new BizValidateException(po.getOrderId(), "网络异常，无法查询支付状态！").setError();
+			}
+			if(!"00".equals(guang.getResCode())) {
+				log.error("错误提示："+guang.getResMsg());
+				throw new BizValidateException("错误提示："+guang.getResMsg());
 			}
 	        if(guang.isPaying()){
 	            throw new BizValidateException(po.getOrderId(),"该订单支付中，无法取消！").setError();
