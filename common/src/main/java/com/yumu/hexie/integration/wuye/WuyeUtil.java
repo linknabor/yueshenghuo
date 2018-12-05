@@ -254,11 +254,6 @@ public class WuyeUtil {
 
 		
 		BaseResult baseResult = httpPost(url,json,Guangming.class);
-		Guangming gm = (Guangming)baseResult.getData();
-		if(!"00".equals(gm.getResCode())) {
-			Log.error("错误提示："+gm.getResMsg());
-			throw new BizValidateException("错误提示："+gm.getResMsg());
-		}
 		return baseResult;
 	}
 
