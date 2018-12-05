@@ -143,8 +143,8 @@ public class PaymentServiceImpl implements PaymentService {
 		r.setNonceStr(guang.getNonceStr());
 		r.setPkgStr(guang.getPackage_str());
 		r.setSignature(guang.getPaySign());
-		
-        pay.setPrepayId(guang.getPackage_str());
+
+		pay.setPrepayId(guang.getPackage_str());
         paymentOrderRepository.save(pay);
         
         
@@ -152,11 +152,9 @@ public class PaymentServiceImpl implements PaymentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
-        
-        
         return r;
     }
+    
     
     private void validatePayRequest(PaymentOrder pay) {
         log.error("validatePayRequest:paymentNo:" +pay.getPaymentNo());
@@ -174,8 +172,14 @@ public class PaymentServiceImpl implements PaymentService {
 
     private boolean checkPaySuccess(String paymentNo){
         log.warn("[Payment-check]begin["+paymentNo+"]");
-        PaymentOrderResult poResult = wechatCoreService.queryOrder(paymentNo);
-        return poResult.isSuccess()&&poResult.isPaySuccess();
+        Guangming guang = null;
+		try {
+			guang = WuyeUtil.getPayOrderInfo(paymentNo).getData();
+		} catch (ValidationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return guang.isPaySuccess();
     }
     /** 
      * @param payment
@@ -191,6 +195,10 @@ public class PaymentServiceImpl implements PaymentService {
 //        PaymentOrderResult poResult = wechatCoreService.queryOrder(payment.getPaymentNo());
         try {
 			Guangming guang = WuyeUtil.getPayOrderInfo(payment.getPaymentNo()).getData();
+			if(!"00".equals(guang.getResCode())) {
+				log.error("错误提示："+guang.getResMsg());
+				throw new BizValidateException("错误提示："+guang.getResMsg());
+			}
 	        if(guang.isPaying()) {//1. 支付中
 	            log.warn("[Payment-refreshStatus]isPaying["+payment.getOrderType()+"]["+payment.getOrderId()+"]");
 	            return payment;
@@ -229,8 +237,13 @@ public class PaymentServiceImpl implements PaymentService {
 //        CloseOrderResp c = wechatCoreService.closeOrder(po);
         try {
 			Guangming guang = WuyeUtil.getPayOrderInfo(po.getPaymentNo()).getData();
+
 			if (guang==null) {
 				throw new BizValidateException(po.getOrderId(), "网络异常，无法查询支付状态！").setError();
+			}
+			if(!"00".equals(guang.getResCode())) {
+				log.error("错误提示："+guang.getResMsg());
+				throw new BizValidateException("错误提示："+guang.getResMsg());
 			}
 	        if(guang.isPaying()){
 	            throw new BizValidateException(po.getOrderId(),"该订单支付中，无法取消！").setError();
