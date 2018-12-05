@@ -120,12 +120,13 @@ public class PaymentServiceImpl implements PaymentService {
      */
     @Override
     public JsSign requestPay(PaymentOrder pay) {
-        validatePayRequest(pay);
-        log.warn("[Payment-req]["+pay.getPaymentNo()+"]["+pay.getOrderId()+"]["+pay.getOrderType()+"]");
-        //支付然后没继续的情景=----校验所需时间较长，是否需要如此操作
+    	
         if(checkPaySuccess(pay.getPaymentNo())){
             throw new BizValidateException(pay.getId(),"订单已支付成功，勿重复提交！").setError();
         }
+        validatePayRequest(pay);
+        log.warn("[Payment-req]["+pay.getPaymentNo()+"]["+pay.getOrderId()+"]["+pay.getOrderType()+"]");
+        //支付然后没继续的情景=----校验所需时间较长，是否需要如此操作
         
 //		3. 从微信获取签名   此方法注释 因为现在是用付费通支付 从付费通哪里拿到签名 appid 等  wyw 2018-11-13
 //        PrePaymentOrder preWechatOrder = wechatCoreService.createOrder(pay);
@@ -156,6 +157,15 @@ public class PaymentServiceImpl implements PaymentService {
         return r;
     }
     
+    public static void main(String[] args) {
+    	try {
+			Guangming guang = WuyeUtil.getPayOrderInfo("201812051433P58098").getData();
+			System.out.println(guang.getAppId());
+		} catch (ValidationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}//发起支付
+	}
     
     private void validatePayRequest(PaymentOrder pay) {
         log.error("validatePayRequest:paymentNo:" +pay.getPaymentNo());
