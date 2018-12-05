@@ -31,7 +31,7 @@ public class PaymentConstant {
     public static final int PAYMENT_STATUS_INVALID = 7;
     public static final int PAYMENT_STATUS_UNPAID = 8;
     
-    
+    public static final String PAY_STATUS_REPEATEDLY = "1";
 
     //退款发起方
     public static final int REFUND_INITIATOR_USER = 0;

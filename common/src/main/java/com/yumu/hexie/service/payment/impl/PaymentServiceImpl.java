@@ -78,7 +78,9 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentOrder fetchPaymentOrder(BaseO2OService order,String openId) {
         List<PaymentOrder> pos = paymentOrderRepository.findByOrderTypeAndOrderIdAndOpenId(order.getPaymentOrderType(),order.getId(),openId);
         if(pos != null && pos.size()>0) {
-            return pos.get(0);
+        	PaymentOrder pay = pos.get(0);
+        	pay.setPayNoIs("1"); //返回已有订单   因为付费通支付不允许终端流水id重复 所以需要判断是否为第一次
+            return pay;
         } else {
             return paymentOrderRepository.save(new PaymentOrder(order,openId));
         }
@@ -165,6 +167,8 @@ public class PaymentServiceImpl implements PaymentService {
         } else if(PaymentConstant.PAYMENT_STATUS_CANCEL==pay.getStatus()
                 ||PaymentConstant.PAYMENT_STATUS_FAIL==pay.getStatus()){
             pay.refreshOrder();
+        } else if(PaymentConstant.PAY_STATUS_REPEATEDLY.equals(pay.getPayNoIs())) {//多次请求刷新
+        	pay.refreshOrder();
         }
     }
 
