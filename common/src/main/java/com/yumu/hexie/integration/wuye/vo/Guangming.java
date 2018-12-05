@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Guangming implements Serializable {
 
 	/**
@@ -23,12 +25,18 @@ public class Guangming implements Serializable {
 	private String orderStatus;//支付状态   7777: 失效	  8888:未支付        9999:支付失败          6666:支付中         0000：支付成功 
 	private String sign;
 	private String orderType;//支付类型     0101 微信   0201 支付宝
+	@JsonProperty("AppId")
 	private String appId;
 	private String resMsg;//提示
+	@JsonProperty("TimeStamp")
 	private String timeStamp;
+	@JsonProperty("NonceStr")
 	private String nonceStr;
+	@JsonProperty("Package_str")
 	private String package_str;
+	@JsonProperty("PaySign")
 	private String paySign;
+	@JsonProperty("SignType")
 	private String signType;
 	private String refundStatus;//退款 状态
 	
@@ -66,38 +74,39 @@ public class Guangming implements Serializable {
 	public String getSignType() {
 		return signType;
 	}
-	public void setSignType(String signType) {
-		this.signType = signType;
+	public void setSignType(String SignType) {
+		this.signType = SignType;
 	}
 	public String getPaySign() {
 		return paySign;
 	}
-	public void setPaySign(String paySign) {
-		this.paySign = paySign;
+	public void setPaySign(String PaySign) {
+		this.paySign = PaySign;
 	}
 	public String getPackage_str() {
 		return package_str;
 	}
-	public void setPackage_str(String package_str) {
-		this.package_str = package_str;
+	public void setPackage_str(String Package_str) {
+		this.package_str = Package_str;
 	}
+	
 	public String getNonceStr() {
 		return nonceStr;
 	}
-	public void setNonceStr(String nonceStr) {
-		nonceStr = nonceStr;
+	public void setNonceStr(String NonceStr) {
+		this.nonceStr = NonceStr;
 	}
 	public String getTimeStamp() {
 		return timeStamp;
 	}
-	public void setTimeStamp(String timeStamp) {
-		this.timeStamp = timeStamp;
+	public void setTimeStamp(String TimeStamp) {
+		this.timeStamp = TimeStamp;
 	}
 	public String getAppId() {
 		return appId;
 	}
-	public void setAppId(String appId) {
-		appId = appId;
+	public void setAppId(String AppId) {
+		this.appId = AppId;
 	}
 	public String getOrderStatus() {
 		return orderStatus;

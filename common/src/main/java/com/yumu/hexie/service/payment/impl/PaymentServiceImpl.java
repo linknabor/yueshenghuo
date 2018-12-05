@@ -143,8 +143,8 @@ public class PaymentServiceImpl implements PaymentService {
 		r.setNonceStr(guang.getNonceStr());
 		r.setPkgStr(guang.getPackage_str());
 		r.setSignature(guang.getPaySign());
-		
-        pay.setPrepayId(guang.getPackage_str());
+
+		pay.setPrepayId(guang.getPackage_str());
         paymentOrderRepository.save(pay);
         
         
@@ -152,9 +152,6 @@ public class PaymentServiceImpl implements PaymentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
-        
-        
         return r;
     }
     
@@ -174,8 +171,14 @@ public class PaymentServiceImpl implements PaymentService {
 
     private boolean checkPaySuccess(String paymentNo){
         log.warn("[Payment-check]begin["+paymentNo+"]");
-        PaymentOrderResult poResult = wechatCoreService.queryOrder(paymentNo);
-        return poResult.isSuccess()&&poResult.isPaySuccess();
+        Guangming guang = null;
+		try {
+			guang = WuyeUtil.getPayOrderInfo(paymentNo).getData();
+		} catch (ValidationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return guang.isPaySuccess();
     }
     /** 
      * @param payment
