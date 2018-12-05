@@ -317,7 +317,7 @@ public class WuyeUtil {
 
 		String response = "";
 		try {
-			Log.info("请求参数数据："+response);
+			Log.info("请求参数数据："+content);
 			response = HttpUtil.doPost(reqUrl,content, "UTF-8");
 			if("".equals(response)||response==null) {
 				throw new BizValidateException("请求出错，请联系管理员。");
