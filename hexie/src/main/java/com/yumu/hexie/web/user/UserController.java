@@ -74,6 +74,7 @@ public class UserController extends BaseController{
     public BaseResult<UserInfo> userInfo(HttpSession session,@ModelAttribute(Constants.USER)User user) throws Exception {
 		user = userService.getById(user.getId());
         if(user != null){
+        	log.info("user is : " + user.toString());
         	session.setAttribute(Constants.USER, user);
             return new BaseResult<UserInfo>().success(new UserInfo(user,operatorService.isOperator(HomeServiceConstant.SERVICE_TYPE_REPAIR,user.getId())));
         } else {
