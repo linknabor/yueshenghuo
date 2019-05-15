@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -131,6 +132,19 @@ public class WeixinUtil {
 	}
 
 
+	public static JsSign getJsSignLocation(String url, String jsTicket) {
+    	JsSign jsign = new JsSign();
+		jsign.setAppId(ConstantWeChat.APPID_PAY);
+		jsign.setTimestamp(""+(int)(System.currentTimeMillis()/1000));
+		jsign.setNonceStr(WeixinUtil.buildRandom());
+        String str = "jsapi_ticket=" + jsTicket +
+                "&noncestr=" + jsign.getNonceStr() +
+                "&timestamp=" + jsign.getTimestamp() +
+                "&url=" + url;
+		String signature = Sha1Util.getSha1(str);
+		jsign.setSignature(signature);
+		return jsign;
+	}
 	/**
 	 * 获取token值
 	 * 

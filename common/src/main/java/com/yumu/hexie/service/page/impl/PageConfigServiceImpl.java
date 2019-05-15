@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Service;
 
+import com.yumu.hexie.integration.baidu.BaiduMapUtil;
 import com.yumu.hexie.model.user.User;
 import com.yumu.hexie.model.view.Banner;
 import com.yumu.hexie.model.view.BannerRepository;
@@ -30,7 +31,7 @@ public class PageConfigServiceImpl implements PageConfigService {
 		}
 
 	}
-
+	
     @Override
     public String findByTempKey(String key) {
         PageConfigView v = pageConfigViewRepository.findByTempKey(key);
@@ -40,4 +41,26 @@ public class PageConfigServiceImpl implements PageConfigService {
         return "";
     }
 
+
+	@Override
+	public List<Banner> queryBannerCoordinate(int bannerType, String coordinate) {
+		// TODO Auto-generated method stub
+		coordinate = BaiduMapUtil.findByCoordinateGetBaidu(coordinate);
+		String name = BaiduMapUtil.findByBaiduGetCity(coordinate);
+		List<Banner> list = bannerRepository.findByRegion(name, bannerType);
+		if(list.isEmpty()||list.size()<=0) {//如果没有默认取上海市的
+			list = bannerRepository.findByRegion("上海市", bannerType);
+		}
+		return list;
+	}
+	
+	@Override
+	public List<Banner> queryBannerName(int bannerType, String name) {
+		// TODO Auto-generated method stub
+		List<Banner> list = bannerRepository.findByRegion(name, bannerType);
+		if(list.isEmpty()||list.size()<=0) {//如果没有默认取上海市的
+			list = bannerRepository.findByRegion("上海市", bannerType);
+		}
+		return list;
+	}
 }
