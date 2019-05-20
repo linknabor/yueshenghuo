@@ -2,6 +2,7 @@ package com.yumu.hexie.web.page;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,7 +47,11 @@ public class BannerController extends BaseController{
      */
 	@RequestMapping(value = "/banner/{bannerType}", method = RequestMethod.POST)
 	@ResponseBody
-	public BaseResult<List<Banner>> getBannerByBannerType(@PathVariable int bannerType,@RequestParam String coordinate) throws Exception {
+	public BaseResult<List<Banner>> getBannerByBannerType(@PathVariable int bannerType,@RequestBody Map<String, String> map) throws Exception {
+		String coordinate = "";
+		if(map.containsKey("coordinate")){	
+			coordinate = map.get("coordinate");
+		}
 		return BaseResult.successResult(pageConfigService.queryBannerCoordinate(bannerType, coordinate));
     }
 	

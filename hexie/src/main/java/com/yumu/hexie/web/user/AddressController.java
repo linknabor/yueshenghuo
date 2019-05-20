@@ -2,10 +2,12 @@ package com.yumu.hexie.web.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -143,7 +145,11 @@ public class AddressController extends BaseController{
      */
 	@RequestMapping(value = "/addres/getName", method = RequestMethod.POST)
 	@ResponseBody
-    public BaseResult<String> getAddres(@RequestParam String coordinate) throws Exception {
+    public BaseResult<String> getAddres(@RequestBody Map<String, String> map) throws Exception {
+		String coordinate = "";
+		if(map.containsKey("coordinate")){	
+			coordinate = map.get("coordinate");
+		}
 		coordinate = BaiduMapUtil.findByCoordinateGetBaidu(coordinate);
 		String name = BaiduMapUtil.findByBaiduGetCity(coordinate);
         return BaseResult.successResult(name);
