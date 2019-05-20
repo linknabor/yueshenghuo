@@ -120,4 +120,17 @@ public class AddressController extends BaseController{
 	public BaseResult<List<AmapAddress>> queryAround(@PathVariable double longitude, @PathVariable double latitude){
 		return BaseResult.successResult(addressService.queryAroundByCoordinate(longitude, latitude));
 	}
+	
+	/**
+	 * type=1 获取全部省   2 获取全部市   3获取全部区
+	 * @param type
+	 * @return
+	 */
+    @RequestMapping(value = "/region/{type}", method = RequestMethod.GET)
+    @ResponseBody
+    public BaseResult<List<Region>> queryRegionType(@PathVariable int type){
+        List<Region> regions = addressService.queryRegionType(type);
+        return BaseResult.successResult(regions);
+    }
+	
 }

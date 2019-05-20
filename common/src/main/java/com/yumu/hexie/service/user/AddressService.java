@@ -29,6 +29,7 @@ public interface AddressService {
 	
 	public List<Address> queryAddressByUser(long userId);
 	
+	public List<Region> queryRegionType(int type);
 	
 	public List<Region> queryRegions(int type,long regionId);
 	

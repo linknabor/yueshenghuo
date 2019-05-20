@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yumu.hexie.common.Constants;
@@ -34,10 +35,32 @@ public class BannerController extends BaseController{
     @Inject
     private DistributionService distributionService;
 
-	@RequestMapping(value = "/banner/{bannerType}", method = RequestMethod.GET)
+    /**
+     * 根据坐标类型获取banner
+     * @param user
+     * @param bannerType
+     * @param coordinate
+     * @return
+     * @throws Exception
+     */
+	@RequestMapping(value = "/banner/{bannerType}", method = RequestMethod.POST)
 	@ResponseBody
-	public BaseResult<List<Banner>> getBannerByBannerType(@ModelAttribute(Constants.USER)User user,@PathVariable int bannerType) throws Exception {
-		return BaseResult.successResult(pageConfigService.queryBannerType(user, bannerType));
+	public BaseResult<List<Banner>> getBannerByBannerType(@PathVariable int bannerType,@RequestParam String coordinate) throws Exception {
+		return BaseResult.successResult(pageConfigService.queryBannerCoordinate(bannerType, coordinate));
+    }
+	
+	/**
+	 * 根据市名和类型获取banner
+	 * @param user
+	 * @param bannerType
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/bannername/{bannerType}/{name}", method = RequestMethod.GET)
+	@ResponseBody
+	public BaseResult<List<Banner>> getBannerByBannerName(@PathVariable int bannerType,@PathVariable String name) throws Exception {
+		return BaseResult.successResult(pageConfigService.queryBannerName(bannerType, name));
     }
 	
 

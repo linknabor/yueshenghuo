@@ -242,4 +242,10 @@ public class AddressServiceImpl implements AddressService {
             return null;
         }
     }
+
+	@Override
+	public List<Region> queryRegionType(int type) {
+		// TODO Auto-generated method stub
+		 return regionRepository.findAllByRegionType(type);
+	}
 }

@@ -9,4 +9,6 @@ public class ConstantBaidu {
 	
 
 	public static String MAPKEY = ConfigUtil.get("baiduMapkey");
+	
+	public final static String OUTPUT = "json";
 }
