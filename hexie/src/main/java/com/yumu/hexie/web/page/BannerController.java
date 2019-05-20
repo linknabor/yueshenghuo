@@ -51,6 +51,11 @@ public class BannerController extends BaseController{
 		String coordinate = "";
 		if(map.containsKey("coordinate")){	
 			coordinate = map.get("coordinate");
+			if(coordinate.isEmpty()) {
+				return BaseResult.fail("未获取到坐标");
+			}
+		}else {
+			return BaseResult.fail("未获取到坐标");
 		}
 		return BaseResult.successResult(pageConfigService.queryBannerCoordinate(bannerType, coordinate));
     }

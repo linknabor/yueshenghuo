@@ -149,6 +149,11 @@ public class AddressController extends BaseController{
 		String coordinate = "";
 		if(map.containsKey("coordinate")){	
 			coordinate = map.get("coordinate");
+			if(coordinate.isEmpty()) {
+				return BaseResult.fail("未获取到坐标");
+			}
+		}else {
+			return BaseResult.fail("未获取到坐标");
 		}
 		coordinate = BaiduMapUtil.findByCoordinateGetBaidu(coordinate);
 		String name = BaiduMapUtil.findByBaiduGetCity(coordinate);
