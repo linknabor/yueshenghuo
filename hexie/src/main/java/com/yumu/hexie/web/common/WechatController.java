@@ -127,17 +127,5 @@ public class WechatController extends BaseController{
     	}
     	return wechatCoreService.checkSignature(signature, timestamp, nonce);
     }
-    
-    /**
-     * 定位获取所需参数获取
-     * @param request
-     * @return
-     * @throws Exception
-     */
-    @ResponseBody
-    @RequestMapping(value = "/getLocation", method = RequestMethod.GET )
-	public BaseResult<JsSign> getLocation(HttpServletRequest request) throws Exception{
-		return BaseResult.successResult(WeixinUtil.getJsSignLocation(request.getRequestURL().toString(), systemConfigService.queryJsTickets()));
-	}
 
 }
