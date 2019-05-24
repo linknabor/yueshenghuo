@@ -74,6 +74,7 @@ public class UserController extends BaseController{
     public BaseResult<UserInfo> userInfo(HttpSession session,@ModelAttribute(Constants.USER)User user) throws Exception {
 		user = userService.getById(user.getId());
         if(user != null){
+        	log.error("userInfo user is : " + user.toString());
         	session.setAttribute(Constants.USER, user);
             return new BaseResult<UserInfo>().success(new UserInfo(user,operatorService.isOperator(HomeServiceConstant.SERVICE_TYPE_REPAIR,user.getId())));
         } else {
@@ -109,6 +110,11 @@ public class UserController extends BaseController{
 		    if(userAccount == null) {
 		        userAccount = userService.getOrSubscibeUserByCode(code);
 		    }
+			if(userAccount == null) {
+	            return new BaseResult<UserInfo>().failMsg("用户不存在！");
+			}
+		    log.error("userAccount is :" + userAccount.toString());
+
 			pointService.addZhima(userAccount, 5, "zm-login-"+DateUtil.dtFormat(new Date(),"yyyy-MM-dd")+userAccount.getId());
 			wuyeService.userLogin(userAccount.getOpenid());
 			
