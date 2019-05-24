@@ -1,9 +1,15 @@
 package com.yumu.hexie.web.common;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.aspectj.weaver.SignatureUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -15,10 +21,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yumu.hexie.common.util.JacksonJsonUtil;
+import com.yumu.hexie.common.util.Sha1Util;
+import com.yumu.hexie.integration.wechat.constant.ConstantWeChat;
 import com.yumu.hexie.integration.wechat.entity.common.JsSign;
 import com.yumu.hexie.integration.wechat.entity.common.PaymentOrderResult;
+import com.yumu.hexie.integration.wechat.util.WeixinUtil;
 import com.yumu.hexie.model.payment.PaymentConstant;
 import com.yumu.hexie.model.payment.PaymentOrder;
+import com.yumu.hexie.service.common.SystemConfigService;
 import com.yumu.hexie.service.common.WechatCoreService;
 import com.yumu.hexie.service.o2o.BaojieService;
 import com.yumu.hexie.service.o2o.XiyiService;
@@ -46,6 +56,8 @@ public class WechatController extends BaseController{
     private BaojieService baojieService;
 	@Inject
 	private PaymentService paymentService;
+	@Inject
+	private SystemConfigService systemConfigService;
     
     @ResponseBody
     @RequestMapping(value = "/checkSignature", method = RequestMethod.GET)

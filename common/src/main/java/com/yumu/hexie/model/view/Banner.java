@@ -10,7 +10,7 @@ public class Banner extends BaseModel {
 
 	private static final long serialVersionUID = 4808669460780339640L;
 	private int bannerType; //0服务；1特卖；2团购；3物业；4特卖活动页；5特卖的品牌
-	private int sortNo = 10;//排序
+	private int sortNo;//排序
 	private String picture;//banner图片或者小图标
 	private String bannerUrl;//目的跳转地址
 	private int status;//0无效；1有效
