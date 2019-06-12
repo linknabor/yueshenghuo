@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.yumu.hexie.common.util.ConfigUtil;
 import com.yumu.hexie.common.util.JacksonJsonUtil;
 import com.yumu.hexie.integration.wechat.entity.common.JsSign;
 import com.yumu.hexie.integration.wechat.entity.common.PaymentOrderResult;
@@ -49,9 +49,6 @@ public class WechatController extends BaseController{
 	@Inject
 	private PaymentService paymentService;
 
-	@Value("${appId}")
-	private String yueAppId;
-	
     @ResponseBody
     @RequestMapping(value = "/checkSignature", method = RequestMethod.GET)
     public String checkSignature(@RequestParam(value = "signature", required = false) String signature,
@@ -128,6 +125,7 @@ public class WechatController extends BaseController{
     @RequestMapping(value = "/getAccessToken", method = RequestMethod.POST )
     public String getAccessToken(@RequestParam String appId, @RequestParam String sign) {
     	
+    	String yueAppId = ConfigUtil.get("appId");
     	if ("linknabor".equals(sign) && yueAppId.equals(appId)) {
     		String accessToken = WeixinUtil.getToken();
         	return accessToken;
