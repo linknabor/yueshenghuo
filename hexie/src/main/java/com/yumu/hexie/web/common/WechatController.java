@@ -21,6 +21,7 @@ import com.yumu.hexie.integration.wechat.entity.common.PaymentOrderResult;
 import com.yumu.hexie.integration.wechat.util.WeixinUtil;
 import com.yumu.hexie.model.payment.PaymentConstant;
 import com.yumu.hexie.model.payment.PaymentOrder;
+import com.yumu.hexie.service.common.SystemConfigService;
 import com.yumu.hexie.service.common.WechatCoreService;
 import com.yumu.hexie.service.o2o.BaojieService;
 import com.yumu.hexie.service.o2o.XiyiService;
@@ -48,6 +49,8 @@ public class WechatController extends BaseController{
     private BaojieService baojieService;
 	@Inject
 	private PaymentService paymentService;
+	@Inject
+	private SystemConfigService systemConfigService;
 
     @ResponseBody
     @RequestMapping(value = "/checkSignature", method = RequestMethod.GET)
@@ -127,7 +130,7 @@ public class WechatController extends BaseController{
     	
     	String yueAppId = ConfigUtil.get("appId");
     	if ("linknabor".equals(sign) && yueAppId.equals(appId)) {
-    		String accessToken = WeixinUtil.getToken();
+    		String accessToken = systemConfigService.queryWXAToken();
         	return accessToken;
 		}
     	return "";
