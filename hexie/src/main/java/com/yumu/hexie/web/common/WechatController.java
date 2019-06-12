@@ -18,7 +18,6 @@ import com.yumu.hexie.common.util.ConfigUtil;
 import com.yumu.hexie.common.util.JacksonJsonUtil;
 import com.yumu.hexie.integration.wechat.entity.common.JsSign;
 import com.yumu.hexie.integration.wechat.entity.common.PaymentOrderResult;
-import com.yumu.hexie.integration.wechat.util.WeixinUtil;
 import com.yumu.hexie.model.payment.PaymentConstant;
 import com.yumu.hexie.model.payment.PaymentOrder;
 import com.yumu.hexie.service.common.SystemConfigService;
@@ -125,11 +124,14 @@ public class WechatController extends BaseController{
      * 给菜馆家提供的接口
      */
     @ResponseBody
-    @RequestMapping(value = "/getAccessToken", method = RequestMethod.POST )
+    @RequestMapping(value = "/getAccessToken", method = RequestMethod.POST, produces="text/plain;charset=UTF-8" )
     public String getAccessToken(@RequestParam String appId, @RequestParam String sign) {
     	
+    	LOGGER.error("appId:" + appId + "sign : " + sign);
     	String yueAppId = ConfigUtil.get("appId");
-    	if ("linknabor".equals(sign) && yueAppId.equals(appId)) {
+    	LOGGER.error("yueAppId:" + yueAppId);
+    	yueAppId = yueAppId.trim();
+    	if ("linknabor".equals(sign) && yueAppId.trim().equals(appId)) {
     		String accessToken = systemConfigService.queryWXAToken();
         	return accessToken;
 		}
