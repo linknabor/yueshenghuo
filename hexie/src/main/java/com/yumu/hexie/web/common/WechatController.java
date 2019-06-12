@@ -1,15 +1,9 @@
 package com.yumu.hexie.web.common;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.aspectj.weaver.SignatureUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -20,12 +14,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.yumu.hexie.common.util.ConfigUtil;
 import com.yumu.hexie.common.util.JacksonJsonUtil;
-import com.yumu.hexie.common.util.Sha1Util;
-import com.yumu.hexie.integration.wechat.constant.ConstantWeChat;
 import com.yumu.hexie.integration.wechat.entity.common.JsSign;
 import com.yumu.hexie.integration.wechat.entity.common.PaymentOrderResult;
-import com.yumu.hexie.integration.wechat.util.WeixinUtil;
 import com.yumu.hexie.model.payment.PaymentConstant;
 import com.yumu.hexie.model.payment.PaymentOrder;
 import com.yumu.hexie.service.common.SystemConfigService;
@@ -58,7 +50,7 @@ public class WechatController extends BaseController{
 	private PaymentService paymentService;
 	@Inject
 	private SystemConfigService systemConfigService;
-    
+
     @ResponseBody
     @RequestMapping(value = "/checkSignature", method = RequestMethod.GET)
     public String checkSignature(@RequestParam(value = "signature", required = false) String signature,
@@ -126,6 +118,25 @@ public class WechatController extends BaseController{
     		return false;
     	}
     	return wechatCoreService.checkSignature(signature, timestamp, nonce);
+    }
+    
+    /**
+     * 给菜馆家提供的接口
+     */
+    @ResponseBody
+    @RequestMapping(value = "/getAccessToken", method = RequestMethod.POST, produces="text/plain;charset=UTF-8" )
+    public String getAccessToken(@RequestParam String appId, @RequestParam String sign) {
+    	
+    	LOGGER.error("appId:" + appId + "sign : " + sign);
+    	String yueAppId = ConfigUtil.get("appId");
+    	LOGGER.error("yueAppId:" + yueAppId);
+    	yueAppId = yueAppId.trim();
+    	if ("linknabor".equals(sign) && yueAppId.trim().equals(appId)) {
+    		String accessToken = systemConfigService.queryWXAToken();
+        	return accessToken;
+		}
+    	return "";
+    	
     }
 
 }
