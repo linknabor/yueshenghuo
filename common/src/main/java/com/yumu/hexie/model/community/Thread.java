@@ -33,10 +33,14 @@ public class Thread implements Serializable{
 	private String createTime;	//创建时间
 	private long createDateTime;	//13位unixtime
 	private long userId;
+	private String userOpenId;	//openid
+	private String extraOpenId;	//悦生活的openid
 	private String userName;
-	private String userHead;	
+	private String userHead;
 	private long userSectId;		//用户所在小区ID
 	private String userSectName; 	//用户所在小区名称
+	private String userAddress;
+	private String userTel;
 	private double userSectLatitude;	//用户所在小区纬度
 	private double userSectLongtitude;	//用户所在小区精度
 	private String attachmentUrl;	//一对多，逗号分割
@@ -48,6 +52,8 @@ public class Thread implements Serializable{
 	private String stickPriority;	//置顶优先级，数值越大优先级越高
 	private long lastCommentTime;	//最后评论时间
 	private String hasUnreadComment;	//是否有未读评论
+	private boolean replied;//是否回复
+	private boolean solved;//是否解决  0：未解决  1：已解决
 	
 	@Transient
 	private List<ThreadComment> comments;
@@ -269,19 +275,41 @@ public class Thread implements Serializable{
 	public void setHasUnreadComment(String hasUnreadComment) {
 		this.hasUnreadComment = hasUnreadComment;
 	}
-	
-	public static void main(String[] args) {
-		
-		
-		long time = System.currentTimeMillis();
-		try {
-			java.lang.Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String str = DateUtil.getSendTime(time);
-		System.out.println(str.toString());
+	public boolean isReplied() {
+		return replied;
+	}
+	public void setReplied(boolean replied) {
+		this.replied = replied;
+	}
+	public boolean isSolved() {
+		return solved;
+	}
+	public void setSolved(boolean solved) {
+		this.solved = solved;
+	}
+	public String getUserAddress() {
+		return userAddress;
+	}
+	public void setUserAddress(String userAddress) {
+		this.userAddress = userAddress;
+	}
+	public String getUserTel() {
+		return userTel;
+	}
+	public void setUserTel(String userTel) {
+		this.userTel = userTel;
+	}
+	public String getUserOpenId() {
+		return userOpenId;
+	}
+	public void setUserOpenId(String userOpenId) {
+		this.userOpenId = userOpenId;
+	}
+	public String getExtraOpenId() {
+		return extraOpenId;
+	}
+	public void setExtraOpenId(String extraOpenId) {
+		this.extraOpenId = extraOpenId;
 	}
 	
 	

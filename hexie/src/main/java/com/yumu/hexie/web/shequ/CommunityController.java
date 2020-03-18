@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +43,7 @@ import com.yumu.hexie.model.community.CommunityInfo;
 import com.yumu.hexie.model.community.Thread;
 import com.yumu.hexie.model.community.ThreadComment;
 import com.yumu.hexie.model.user.User;
+import com.yumu.hexie.service.common.GotongService;
 import com.yumu.hexie.service.common.SystemConfigService;
 import com.yumu.hexie.service.shequ.CommunityService;
 import com.yumu.hexie.service.user.UserService;
@@ -54,22 +56,18 @@ public class CommunityController extends BaseController{
 	private static final Logger log = LoggerFactory.getLogger(CommunityController.class);
 	
 	private static final int PAGE_SIZE = 10;
-	
     @Value(value = "${tmpfile.dir}")
     private String tmpFileRoot;
-    
     @Value(value = "${qiniu.domain}")
     private String domain;
-
-	
 	@Inject
 	private CommunityService communityService;
-	
 	@Inject
 	private UserService userService;
-	
 	@Inject
 	private SystemConfigService systemConfigService;
+	@Autowired
+	private GotongService gotongService;
 	
 	/*****************[BEGIN]帖子********************/
 	
@@ -231,19 +229,10 @@ public class CommunityController extends BaseController{
 		
 		User user = (User)session.getAttribute(Constants.USER);
 		
-		Long sect_id = null;
-		try {
-			sect_id = user.getXiaoquId();
-		} catch (Exception e) {
-			
+		long sect_id = user.getXiaoquId();
+		if(sect_id == 0){
 			return BaseResult.successResult(new ArrayList<Thread>());
 		}
-		
-		if(sect_id == null){
-			
-			return BaseResult.successResult(new ArrayList<Thread>());
-		}
-		
 		Long threadId = thread.getThreadId();
 		
 		if (StringUtil.isEmpty(threadId)) {
@@ -480,20 +469,10 @@ public class CommunityController extends BaseController{
 	public BaseResult<Thread> addComment(HttpSession session, @RequestBody ThreadComment comment) throws Exception{
 		
 		User user = (User)session.getAttribute(Constants.USER);
-		
-		Long sect_id = null;
-		try {
-			sect_id = user.getXiaoquId();
-		} catch (Exception e) {
-			
+		long sect_id = user.getXiaoquId();
+		if(sect_id == 0){
 			return BaseResult.successResult(new ArrayList<Thread>());
 		}
-		
-		if(sect_id == null){
-			
-			return BaseResult.successResult(new ArrayList<Thread>());
-		}
-		
 		//更新帖子回复数量及最后评论时间
 		Thread thread = communityService.getThreadByTreadId(comment.getThreadId());
 		thread.setCommentsCount(thread.getCommentsCount()+1);
@@ -525,22 +504,11 @@ public class CommunityController extends BaseController{
 	public BaseResult deleteComment(HttpSession session, @RequestBody ThreadComment comment) throws Exception{
 		
 		User user = (User)session.getAttribute(Constants.USER);
-		
-		Long sect_id = null;
-		try {
-			sect_id = user.getXiaoquId();
-		} catch (Exception e) {
-			
+		long sect_id = user.getXiaoquId();
+		if(sect_id == 0){
 			return BaseResult.successResult(new ArrayList<Thread>());
 		}
-		
-		if(sect_id == null){
-			
-			return BaseResult.successResult(new ArrayList<Thread>());
-		}
-		
 		communityService.deleteComment(user, comment.getCommentId());	//添加评论
-		
 		//更新帖子回复数量
 		Thread thread = communityService.getThreadByTreadId(comment.getThreadId());
 		thread.setCommentsCount(thread.getCommentsCount()-1);
@@ -561,20 +529,10 @@ public class CommunityController extends BaseController{
 	public BaseResult getAccessToken(HttpSession session){
 		
 		User user = (User)session.getAttribute(Constants.USER);
-		
-		Long sect_id = null;
-		try {
-			sect_id = user.getXiaoquId();
-		} catch (Exception e) {
-			
+		long sect_id = user.getXiaoquId();
+		if(sect_id == 0){
 			return BaseResult.successResult(new ArrayList<Thread>());
 		}
-		
-		if(sect_id == null){
-			
-			return BaseResult.successResult(new ArrayList<Thread>());
-		}
-		
 		String access_token = WeixinUtil.getToken();
 		return BaseResult.successResult(access_token);
 		
@@ -592,16 +550,8 @@ public class CommunityController extends BaseController{
 		
 		User user = (User)session.getAttribute(Constants.USER);
 		
-		Long sect_id = null;
-		try {
-			sect_id = user.getXiaoquId();
-		} catch (Exception e) {
-			
-			return BaseResult.successResult(new ArrayList<Thread>());
-		}
-		
-		if(sect_id == null){
-			
+		long sect_id = user.getXiaoquId();
+		if(sect_id == 0){
 			return BaseResult.successResult(new ArrayList<Thread>());
 		}
 		
@@ -732,21 +682,11 @@ public class CommunityController extends BaseController{
 	public BaseResult<List<CommunityInfo>> getCommunityInfo(HttpSession session){
 		
 		User user = (User)session.getAttribute(Constants.USER);
-		Long sect_id = null;
-		try {
-			sect_id = user.getXiaoquId();
-		} catch (Exception e) {
-			
+		long sect_id = user.getXiaoquId();
+		if(sect_id == 0){
 			return BaseResult.fail("您还没有填写小区信息。");
 		}
-		
-		if(sect_id == null){
-			
-			return BaseResult.fail("您还没有填写小区信息。");
-		}
-		
 		Sort sort = new Sort(Direction.ASC , "infoType");
-		
 		List<CommunityInfo>cityList = communityService.getCommunityInfoByCityIdAndInfoType(user.getCityId(), "0",sort);
 		List<CommunityInfo>regionList = communityService.getCommunityInfoByRegionId(user.getCountyId(), sort);
 		List<CommunityInfo>sectList = communityService.getCommunityInfoBySectId(sect_id, sort);
@@ -777,19 +717,10 @@ public class CommunityController extends BaseController{
 	public BaseResult<List<Annoucement>> getAnnoucementList(HttpSession session){
 		
 		User user = (User)session.getAttribute(Constants.USER);
-		Long sect_id = null;
-		try {
-			sect_id = user.getXiaoquId();
-		} catch (Exception e) {
-			
+		long sect_id = user.getXiaoquId();
+		if(sect_id == 0){
 			return BaseResult.fail("您还没有填写小区信息。");
 		}
-		
-		if(sect_id == null){
-			
-			return BaseResult.fail("您还没有填写小区信息。");
-		}
-		
 		Sort sort = new Sort(Direction.DESC , "annoucementId");
 		List<Annoucement> list = communityService.getAnnoucementList(sort);
 		
@@ -841,4 +772,19 @@ public class CommunityController extends BaseController{
 		return BaseResult.successResult("succeeded");
 		
 	}
+	
+	/**
+	 * 推送模板消息
+	 * @param session
+	 * @param threadId
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/thread/pushweixin", method = RequestMethod.POST)
+	@ResponseBody
+	public String pushweixin(@RequestBody Thread thread) throws Exception{
+		gotongService.sendThreadReplyMsg(thread);
+		return "SUCCESS";
+	}
+	
 }

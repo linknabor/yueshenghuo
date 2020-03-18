@@ -4,6 +4,7 @@
  */
 package com.yumu.hexie.service.common;
 
+import com.yumu.hexie.model.community.Thread;
 import com.yumu.hexie.model.localservice.bill.YunXiyiBill;
 import com.yumu.hexie.model.localservice.repair.RepairOrder;
 import com.yumu.hexie.model.user.User;
@@ -29,4 +30,6 @@ public interface GotongService {
     public void sendCommonYuyueBillMsg(int serviceType,String title,String billName, String requireTime, String url);
 
     public void sendThreadPubNotify(User user, com.yumu.hexie.model.community.Thread thread);
+
+	void sendThreadReplyMsg(Thread thread);
 }
