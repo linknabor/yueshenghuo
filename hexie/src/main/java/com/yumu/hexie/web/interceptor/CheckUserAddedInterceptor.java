@@ -4,11 +4,15 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.yumu.hexie.common.Constants;
 import com.yumu.hexie.common.util.StringUtil;
+import com.yumu.hexie.integration.wechat.entity.user.UserWeiXin;
 import com.yumu.hexie.model.user.User;
 import com.yumu.hexie.service.user.UserService;
 
@@ -17,6 +21,8 @@ import com.yumu.hexie.service.user.UserService;
  * @author Administrator
  */
 public class CheckUserAddedInterceptor implements HandlerInterceptor {
+	
+	private Logger logger =  LoggerFactory.getLogger(CheckUserAddedInterceptor.class); 
 
 	@Inject
 	private UserService userService;
@@ -30,7 +36,21 @@ public class CheckUserAddedInterceptor implements HandlerInterceptor {
 				if(request.getRequestURI().indexOf("login") >= 0) {
 					return true;
 				} else {
-					User userAccount = userService.getOrSubscibeUserByCode(code);
+					logger.info("requeste uri : " + request.getRequestURI());
+					UserWeiXin weixinUser = userService.getOrSubscibeUserByCode(code);
+					User userAccount = userService.multiFindByOpenId(weixinUser.getOpenid());
+					request.getSession().setAttribute(Constants.USER, userAccount);
+				}
+			}
+		}else{
+			User userAccount = (User) request.getSession().getAttribute(Constants.USER);
+
+			if(StringUtils.isEmpty(userAccount.getWuyeId())) {
+				logger.info("user:" + userAccount + ", wuyeId has no value, will update !");
+				userService.bindWuYeId(userAccount);
+				User dbUser = userService.getById(userAccount.getId());
+				if (dbUser!=null && !StringUtils.isEmpty(dbUser.getWuyeId())) {
+					userAccount.setWuyeId(dbUser.getWuyeId());
 					request.getSession().setAttribute(Constants.USER, userAccount);
 				}
 			}

@@ -1,10 +1,19 @@
 package com.yumu.hexie.service.user.impl;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.yumu.hexie.common.util.StringUtil;
 import com.yumu.hexie.integration.wechat.entity.user.UserWeiXin;
@@ -21,6 +30,8 @@ import com.yumu.hexie.service.user.UserService;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
+	
+	private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Inject
 	private UserRepository userRepository;
@@ -30,81 +41,109 @@ public class UserServiceImpl implements UserService {
 
 	@Inject
 	private WechatCoreService wechatCoreService;
+	
+	@Autowired
+	private RedisTemplate<String, Object> redisTemplate;
+	
     @Override
     public User getById(long uId){
         return userRepository.findOne(uId);
     }
-    public User getByOpenId(String openId){
-        return userRepository.findByOpenid(openId);
-    }
-	@Override
-	public User getOrSubscibeUserByCode(String code) {
-		UserWeiXin user = wechatCoreService.getByOAuthAccessToken(code);
-		if(user == null) {
-            throw new BizValidateException("微信信息不正确");
-        }
-		String openId = user.getOpenid();
-		User userAccount = userRepository.findByOpenid(openId);
-		if(userAccount == null) {
-            userAccount = createUser(user);
-            userAccount.setNewRegiste(true);
-        }
-        if(StringUtil.isEmpty(userAccount.getNickname())){
-            userAccount = updateUserByWechat(user, userAccount);
-        }else if(user.getSubscribe()!=null&&user.getSubscribe() != userAccount.getSubscribe()) {
-            userAccount = updateSubscribeInfo(user, userAccount);
-        }
-        //绑定物业信息
-        if(StringUtil.isEmpty(userAccount.getWuyeId()) ){
-            bindWithWuye(userAccount);
-        }
-		return userAccount;
+    @Override
+    public List<User> getByOpenId(String openId) {
+		return userRepository.findByOpenid(openId);
 	}
-	private User createUser(UserWeiXin user) {
-		User userAccount;
-		userAccount = new User();
-		userAccount.setOpenid(user.getOpenid());
-		userAccount.setName(user.getNickname());
-		userAccount.setHeadimgurl(user.getHeadimgurl());
-		userAccount.setNickname(user.getNickname());
-		userAccount.setSubscribe(user.getSubscribe());
-		userAccount.setSex(user.getSex());
-		userAccount.setCountry(user.getCountry());
-		userAccount.setProvince(user.getProvince());
-		userAccount.setCity(user.getCity());
-		userAccount.setLanguage(user.getLanguage());
-		userAccount.setSubscribe_time(user.getSubscribe_time());
+    
+    @Override
+	public UserWeiXin getOrSubscibeUserByCode(String code) {
+    	
+    	UserWeiXin user = wechatCoreService.getByOAuthAccessToken(code);
+		if (user == null) {
+			throw new BizValidateException("微信信息不正确");
+		}
+		logger.info("userWeiXin is : " + user);
+		return user;
+	}
+
+	
+    @Override
+	@Transactional
+	public User updateUserLoginInfo(UserWeiXin weixinUser) {
+
+		String openId = weixinUser.getOpenid();
+		User userAccount = multiFindByOpenId(openId);
+
+		if (userAccount == null) {
+			userAccount = new User();
+			userAccount.setOpenid(weixinUser.getOpenid());
+			userAccount.setName(weixinUser.getNickname());
+			userAccount.setHeadimgurl(weixinUser.getHeadimgurl());
+			userAccount.setNickname(weixinUser.getNickname());
+			userAccount.setSubscribe(weixinUser.getSubscribe());
+			userAccount.setSex(weixinUser.getSex());
+			userAccount.setCountry(weixinUser.getCountry());
+			userAccount.setProvince(weixinUser.getProvince());
+			userAccount.setCity(weixinUser.getCity());
+			userAccount.setLanguage(weixinUser.getLanguage());
+			userAccount.setSubscribe_time(weixinUser.getSubscribe_time());
+			userAccount.setShareCode(DigestUtils.md5Hex("UID[" + userAccount.getId() + "]"));
+
+		} else {
+
+			if (StringUtil.isEmpty(userAccount.getNickname())) {
+				userAccount.setName(weixinUser.getNickname());
+				userAccount.setHeadimgurl(weixinUser.getHeadimgurl());
+				userAccount.setNickname(weixinUser.getNickname());
+				userAccount.setSex(weixinUser.getSex());
+				if (StringUtil.isEmpty(userAccount.getCountry()) || StringUtil.isEmpty(userAccount.getProvince())) {
+					userAccount.setCountry(weixinUser.getCountry());
+					userAccount.setProvince(weixinUser.getProvince());
+					userAccount.setCity(weixinUser.getCity());
+				}
+				userAccount.setLanguage(weixinUser.getLanguage());
+				// 从网页进入时下面两个值为空
+				userAccount.setSubscribe_time(weixinUser.getSubscribe_time());
+				userAccount.setSubscribe(weixinUser.getSubscribe());
+
+			} else if (weixinUser.getSubscribe() != null && weixinUser.getSubscribe() != userAccount.getSubscribe()) {
+				userAccount.setSubscribe(weixinUser.getSubscribe());
+				userAccount.setSubscribe_time(weixinUser.getSubscribe_time());
+			}
+		}
 		userAccount = userRepository.save(userAccount);
 		return userAccount;
 	}
-    private User updateSubscribeInfo(UserWeiXin user, User userAccount) {
-        userAccount.setSubscribe(user.getSubscribe());
-        userAccount.setSubscribe_time(user.getSubscribe_time());
-        return userRepository.save(userAccount);
-    }
-    private User updateUserByWechat(UserWeiXin user, User userAccount) {
-        userAccount.setName(user.getNickname());
-        userAccount.setHeadimgurl(user.getHeadimgurl());
-        userAccount.setNickname(user.getNickname());
-        userAccount.setSex(user.getSex());
-        if(StringUtil.isEmpty(userAccount.getCountry())
-        		||StringUtil.isEmpty(userAccount.getProvince())){
-        	userAccount.setCountry(user.getCountry());
-        	userAccount.setProvince(user.getProvince());
-        	userAccount.setCity(user.getCity());
-        }
-        userAccount.setLanguage(user.getLanguage());
-        //从网页进入时下面两个值为空
-        userAccount.setSubscribe_time(user.getSubscribe_time());
-        userAccount.setSubscribe(user.getSubscribe());
-        return userRepository.save(userAccount);
-    }
-	
-	private void bindWithWuye(User userAccount) {
-		BaseResult<HexieUser> r = WuyeUtil.userLogin(userAccount.getOpenid());
-		if(r.isSuccess()) {
-			userAccount.setWuyeId(r.getData().getUser_id());
-			userRepository.save(userAccount);
+
+	@Override
+	public User multiFindByOpenId(String openId) {
+		List<User> userList = userRepository.findByOpenid(openId);
+		User userAccount = null;
+		if (userList != null && userList.size() > 0) {
+			if (userList.size() == 1) {
+				userAccount = userList.get(0);
+			} else {
+				userAccount = userList.get(userList.size() - 1);
+			}
+		}
+		return userAccount;
+	}
+    
+	@Override
+	@Async
+	public void bindWuYeId(User user) {
+		 //绑定物业信息
+    	try {
+    		if(StringUtil.isEmpty(user.getWuyeId()) ){
+    			BaseResult<HexieUser> r = WuyeUtil.userLogin(user.getOpenid());
+        		if(r.isSuccess()) {
+        			User dbUser = userRepository.findOne(user.getId());
+        			if (dbUser != null) {
+        				userRepository.updateUserWuyeId(r.getData().getUser_id(), dbUser.getId());
+					}
+        		}
+    		}
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
 		}
 	}
 
@@ -125,13 +164,6 @@ public class UserServiceImpl implements UserService {
 		pointService.addZhima(user, 100, "zm-binding-"+user.getId());
 		return userRepository.save(user);
 	}
-//	@Override
-//	public void syncUsersFromWechat() {
-//		List<UserWeiXin> us = wechatCoreService.getUserList();
-//		for(UserWeiXin u : us) {
-//			getOrSubscibeUserByOpenId(u);
-//		}
-//	}
 	@Override
 	public UserWeiXin getOrSubscibeUserByOpenId(String openid) {
 
@@ -167,4 +199,26 @@ public class UserServiceImpl implements UserService {
 		return openid;
 	}
 
+	/**
+	 * 防止用户短时间内重复调用login接口
+	 */
+	@Override
+	public boolean checkDuplicateLogin(HttpSession httpSession) {
+
+		boolean isDuplicateRequest = false;
+		String sessionId = httpSession.getId();
+		logger.info("user session : " + sessionId);
+
+		String key = ModelConstant.KEY_USER_LOGIN + sessionId;
+
+		Object object = redisTemplate.opsForValue().get(key);
+		if (object == null) {
+			redisTemplate.opsForValue().set(key, sessionId, 2, TimeUnit.SECONDS); // 设置3秒过期，3秒内任何请求不予处理
+		} else {
+
+			isDuplicateRequest = true;
+		}
+		return isDuplicateRequest;
+	}
+	
 }

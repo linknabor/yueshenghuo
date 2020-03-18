@@ -58,6 +58,7 @@ public class UserInfo implements Serializable {
     private long id;
     private String sect_id;
     private String officeTel;
+    private String openId;
 
     public String getOfficeTel() {
 		return officeTel;
@@ -253,6 +254,12 @@ public class UserInfo implements Serializable {
 	}
 	public void setSect_id(String sect_id) {
 		this.sect_id = sect_id;
+	}
+	public String getOpenId() {
+		return openId;
+	}
+	public void setOpenId(String openId) {
+		this.openId = openId;
 	}
     
     
