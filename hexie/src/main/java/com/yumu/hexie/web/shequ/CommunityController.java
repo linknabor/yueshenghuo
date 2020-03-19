@@ -21,11 +21,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.qiniu.api.io.IoApi;
@@ -782,7 +784,16 @@ public class CommunityController extends BaseController{
 	 */
 	@RequestMapping(value = "/thread/pushweixin", method = RequestMethod.POST)
 	@ResponseBody
-	public String pushweixin(@RequestBody Thread thread) throws Exception{
+	public String pushweixin(@RequestParam String threadId, @RequestParam String userName,
+			@RequestParam String userTel, @RequestParam String userAddress, @RequestParam String extraOpenId) throws Exception{
+		
+		Assert.hasLength(extraOpenId, "用户openid不能为空。");
+		Thread thread = new Thread();
+		thread.setThreadId(Long.valueOf(threadId));
+		thread.setUserName(userName);
+		thread.setUserTel(userTel);
+		thread.setUserAddress(userAddress);
+		thread.setExtraOpenId(extraOpenId);
 		gotongService.sendThreadReplyMsg(thread);
 		return "SUCCESS";
 	}
