@@ -22,7 +22,6 @@ import com.yumu.hexie.model.community.CommunityInfoRepository;
 import com.yumu.hexie.model.community.Thread;
 import com.yumu.hexie.model.community.ThreadComment;
 import com.yumu.hexie.model.community.ThreadCommentRepository;
-import com.yumu.hexie.model.community.ThreadOperatorRepository;
 import com.yumu.hexie.model.community.ThreadRepository;
 import com.yumu.hexie.model.user.User;
 import com.yumu.hexie.service.common.GotongService;

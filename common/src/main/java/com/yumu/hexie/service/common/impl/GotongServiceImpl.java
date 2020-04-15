@@ -61,6 +61,8 @@ public class GotongServiceImpl implements GotongService {
     
     public static String THREAD_NOTICE_URL = ConfigUtil.get("threadUrl");
     
+    public static String THREAD_DETAIL = ConfigUtil.get("threadDetail");	//--> ori templateUrl
+    
     public static String THREAD_NOTICE_DESC = "业主姓名：NAME\r联系方式：TEL\r业主地址：CELL_ADDR\r消息类型：CATEGORY\r消息内容：CONTENT";
     
     public static Map<String, String>categoryMap;
@@ -217,22 +219,16 @@ public class GotongServiceImpl implements GotongService {
     	 
     }
     
-    public static void main(String[] args) {
-	
-    	Article article = new Article();
-		article.setTitle("管家服务有新消息");
-		article.setDescription("业主姓名：yiming\r联系方式：18116419486\r业主地址：浦东新区三林路128弄1单元103室\r类型:测试 \r阿朵司法所飞洒发放的说法as范德萨发送发放阿斯蒂芬撒法撒旦法撒 阿朵司法所飞洒发放的说法as范德萨发送发放阿斯蒂芬撒法撒旦法撒");
-		article.setUrl("https://www.e-shequ.com/dhzj3/weixin/communities/threadDetail.html?threadId=11");
-		
-		News news = new News(new ArrayList<Article>());
-		news.getArticles().add(article);
-		NewsMessage msg = new NewsMessage(news);
-		msg.setTouser("o_3DlwdnCLCz3AbTrZqj4HtKeQYY");
-		msg.setMsgtype(ConstantWeChat.RESP_MESSAGE_TYPE_NEWS);
-		
-		String accessToken = "ZunBWUlbDfqe2AN4rVMOST70fD_kEImeDWyEORcqmtEKo6TxWgkP6IWQWsIJPP4jrFVo0OYtlOSABpV1sLDsD9QE-O_fMQAFAErTpO-xONrzVS_vKchuKSN57AHhRwDUIDIhAIAOJO";
-		CustomService.sendCustomerMessage(msg, accessToken);
+    /**
+     *维修、业主意见添加评论后通知业主
+     */
+    @Async
+	@Override
+	public void sendThreadReplyMsg(com.yumu.hexie.model.community.Thread thread) {
     	
+    	String accessToken = systemConfigService.queryWXAToken();
+		TemplateMsgService.sendThreadReplyMsg(thread, accessToken);
+	
     }
     
 }

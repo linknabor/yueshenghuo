@@ -289,4 +289,6 @@ public class ModelConstant {
 
 	public static final int COLLOCATION_STATUS_AVAILABLE = 1;
 	public static final int COLLOCATION_STATUS_INVAILID = 2;
+
+	public static final String KEY_USER_LOGIN = "userLoginSession_";
 }		
