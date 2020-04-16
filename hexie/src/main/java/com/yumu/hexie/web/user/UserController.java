@@ -1,6 +1,7 @@
 package com.yumu.hexie.web.user;
 
 import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -220,5 +221,6 @@ public class UserController extends BaseController{
 		}
 		return new BaseResult<Map<String, String>>().success(map);
     }
+
     
 }
