@@ -1,6 +1,9 @@
 package com.yumu.hexie.web.user;
 
+import java.util.HashMap;
+
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +25,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yumu.hexie.common.Constants;
 import com.yumu.hexie.common.util.StringUtil;
+import com.yumu.hexie.integration.wechat.entity.AccessTokenOAuth;
 import com.yumu.hexie.integration.wechat.entity.user.UserWeiXin;
+import com.yumu.hexie.integration.wechat.service.OAuthService;
 import com.yumu.hexie.model.localservice.HomeServiceConstant;
 import com.yumu.hexie.model.user.User;
 import com.yumu.hexie.service.common.SmsService;
@@ -198,38 +203,24 @@ public class UserController extends BaseController{
         }
     }
     
-//    /**
-//     * 绑定主公众号的openid
-//     * @param user
-//     * @param code
-//     * @return
-//     * @throws Exception
-//     */
-//    @RequestMapping(value = "/bindWechat/{code}", method = RequestMethod.POST)
-//    @ResponseBody
-//    public BaseResult<String> bindMain(@ModelAttribute(Constants.USER)User user, @PathVariable String code) throws Exception {
-//    	
-//    	User currUser = userService.getById(user.getId());
-//    	if (currUser == null) {
-//    		return new BaseResult<String>().failMsg("user does not exist !");
-//		}
-//    	if (StringUtil.isEmpty(currUser.getBindOpenId())) {
-//    		String openId = "";
-//        	if (StringUtil.isNotEmpty(code)) {
-//        		try {
-//    				openId = userService.getBindOrSubscibeUserOpenIdByCode(code);
-//    				currUser.setBindOpenId(openId);
-//    	        	currUser.setBindAppId(ConstantWeChat.BIND_APPID);
-//    	        	userService.save(currUser);
-//    			} catch (Exception e) {
-//    				throw new BizValidateException("get bind openid failed ! ");
-//    			}
-//        	}
-//        	
-//		}
-//    	
-//    	return new BaseResult<String>().success("bind succeeded!");
-//    	
-//    }
+    /**
+     * 静默授权获取用户openid
+     * @param session
+     * @param code
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/authorize/{code}", method = RequestMethod.POST)
+	@ResponseBody
+    public BaseResult<Map<String, String>> authorize(HttpSession session,@PathVariable String code) throws Exception {
+		
+		Map<String, String> map = new HashMap<>();
+		if (StringUtil.isNotEmpty(code)) {
+			AccessTokenOAuth oauth = OAuthService.getOAuthAccessToken(code);
+	    	map.put("openid", oauth.getOpenid());
+		}
+		return new BaseResult<Map<String, String>>().success(map);
+    }
+
     
 }
